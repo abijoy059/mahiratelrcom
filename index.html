@@ -3,125 +3,108 @@
 <head>
 <title>MAHIRA TELRCOM - REDMI</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-
 body{
 font-family: Arial;
-background: linear-gradient(135deg,#eef2f7,#dfe6ee);
-padding:10px;
-margin:0;
+background: linear-gradient(135deg,#f1f4f9,#e9eef5);
+padding:70px 15px 15px;
 }
 
-/* Floating Header */
+/* FLOATING HEADER */
 .header{
-position:sticky;
+position:fixed;
 top:0;
-background:white;
-padding:14px;
-border-radius:0 0 14px 14px;
-box-shadow:0 4px 10px rgba(0,0,0,0.08);
-z-index:99;
+left:0;
+width:100%;
+background: linear-gradient(135deg,#ff4e50,#ff7a18,#ff2d55);
+color:white;
+padding:14px 10px;
+text-align:center;
+box-shadow:0 6px 16px rgba(0,0,0,0.2);
+z-index:999;
 }
 
-.title{
+.header h1{
+margin:0;
 font-size:20px;
-font-weight:bold;
-text-align:center;
 }
 
 .count{
-text-align:center;
-font-size:13px;
-color:#666;
-margin-top:4px;
+font-size:12px;
+margin-top:3px;
+opacity:.9;
 }
 
-/* Search */
+/* SEARCH */
 input{
 width:100%;
 padding:12px;
-margin-top:10px;
+margin:12px 0;
 border-radius:12px;
 border:1px solid #ddd;
-font-size:15px;
-outline:none;
+font-size:16px;
+box-shadow:0 2px 6px rgba(0,0,0,0.05);
 }
 
-/* Card */
+/* CARD */
 .card{
 background:white;
-padding:14px;
+padding:16px;
 margin:12px 0;
-border-radius:14px;
+border-radius:16px;
 box-shadow:0 6px 14px rgba(0,0,0,0.08);
 }
 
 .model{
 font-weight:bold;
-font-size:17px;
+font-size:18px;
 margin-bottom:8px;
 }
 
-/* Price box */
+/* PRICE BOX */
 .priceBox{
 display:inline-block;
 padding:10px 14px;
 border-radius:12px;
-background:#eef7ef;
+background:#eaf7ee;
 box-shadow:0 4px 10px rgba(0,0,0,0.08);
 margin-top:6px;
-font-size:14px;
-line-height:1.6;
 }
 
 .priceLabel{
 font-size:11px;
-color:#777;
-display:block;
-margin-bottom:3px;
+opacity:.6;
 }
 
-/* Color styles */
-.oled{
-color:#0a8f2f;
+.priceText{
+font-size:16px;
 font-weight:bold;
+margin-top:2px;
 }
 
-.copy{
-color:#2f6df6;
-font-weight:bold;
-}
-
-.stock{
-color:red;
-font-weight:bold;
-}
-
-/* Box tag */
+/* BOX TAG */
 .box{
 display:inline-block;
 margin-left:10px;
-padding:8px 14px;
+padding:8px 12px;
 border-radius:12px;
-background:#dfe8ff;
-color:#2d5bff;
+background:#e8f0ff;
+color:#2b5cff;
+font-weight:bold;
 font-size:13px;
 box-shadow:0 4px 10px rgba(0,0,0,0.08);
 }
-
 </style>
 </head>
 
 <body>
 
 <div class="header">
-<div class="title">MAHIRA TELRCOM - REDMI</div>
-<div class="count" id="count">Loading...</div>
+<h1>📱 MAHIRA TELRCOM</h1>
+<div class="count" id="count">Total Models: 0</div>
+</div>
 
 <input type="text" id="search" placeholder="Search model..." onkeyup="search()">
-</div>
 
 <div id="data"></div>
 
@@ -137,44 +120,43 @@ fetch(url)
 .then(d=>{
 all=d;
 show(d);
-document.getElementById("count").innerText="Total Models: " + d.length;
 });
 
-function formatPrice(text){
+function formatPrice(p){
 
-if(!text) return "ASK";
+if(!p) return "<span style='color:#0a8f2f'>ASK</span>";
 
-text = text.toUpperCase();
+p = p.replace(/OLED/gi, "<span style='color:#0a8f2f'>OLED</span>");
+p = p.replace(/COPY/gi, "<span style='color:#1f5cff'>COPY</span>");
+p = p.replace(/STOCK OUT/gi, "<span style='color:#d10000'>STOCK OUT</span>");
+p = p.replace(/COPY/,"<br>COPY");
 
-text = text.replace(/OLED/g,'<span class="oled">OLED</span>');
-text = text.replace(/COPY/g,'<span class="copy">COPY</span>');
-text = text.replace(/STOCK OUT/g,'<span class="stock">STOCK OUT</span>');
-
-return text;
+return p;
 }
 
 function show(d){
+
+document.getElementById("count").innerText =
+"Total Models: " + d.length;
+
 let html="";
 
 d.forEach(x=>{
 
 let model = x["Model"] || "";
-let price = x["Price"] || "ASK";
+let price = formatPrice(x["Price"]);
 let box = x["Box"] || x["BOX"] || x["Box "] || "";
 
 html+=`
 <div class="card">
 <div class="model">${model}</div>
 
-<div>
 <div class="priceBox">
-<span class="priceLabel">PRICE</span>
-${formatPrice(price)}
+<div class="priceLabel">PRICE</div>
+<div class="priceText">${price}</div>
 </div>
 
-${box ? `<span class="box">${box}</span>` : ""}
-</div>
-
+<div class="box">${box}</div>
 </div>
 `;
 
@@ -191,7 +173,6 @@ let f=all.filter(x=>
 );
 
 show(f);
-document.getElementById("count").innerText="Total Models: " + f.length;
 }
 
 </script>

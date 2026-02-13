@@ -12,7 +12,6 @@ body{
   margin:0;
 }
 
-/* Top Header */
 .header{
   position:sticky;
   top:0;
@@ -37,7 +36,6 @@ body{
   font-weight:normal;
 }
 
-/* Search */
 .search{
   padding:12px;
 }
@@ -50,7 +48,6 @@ body{
   font-size:15px;
 }
 
-/* Card */
 .card{
   background:white;
   margin:12px;
@@ -65,7 +62,6 @@ body{
   margin-bottom:10px;
 }
 
-/* Price box */
 .pricebox{
   background:#eef6f1;
   padding:10px 14px;
@@ -75,16 +71,11 @@ body{
   font-weight:bold;
 }
 
-/* Colors */
 .oled{color:#0a8f2d;}
 .copy{color:#2f6fff;}
 .out{color:#e00000;}
+.ask{color:#0a8f2d;}
 
-.ask{
-  color:#0a8f2d;
-}
-
-/* Box tag */
 .box{
   display:inline-block;
   margin-left:10px;
@@ -123,18 +114,15 @@ let all=[];
 fetch(url)
 .then(r=>r.json())
 .then(d=>{
-  all=d.filter(x=>x["Model"] && x["Model"]!="Model" && !x["Model"].includes("BOX"));
+  all=d.filter(x=>x["Model"] && x["Model"]!="Model");
   show(all);
   document.getElementById("count").innerText="Total Models: "+all.length;
 });
 
 function formatPrice(p){
-
   if(!p) return '<span class="ask">ASK</span>';
 
   let t=p.toUpperCase();
-
-  // line break support
   t=t.replace(/\n/g,"<br>");
 
   t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
@@ -152,12 +140,8 @@ function show(d){
     let model=x["Model"]||"";
     let price=x["Price"]||"";
 
-    // STRONG AUTO BOX DETECT
-    let box =
-      x["Box"] ||
-      x["BOX"] ||
-      x["box"] ||
-      Object.values(x)[2] || "";
+    // REAL BOX AUTO DETECT (C column)
+    let box = x["Box"] || x["BOX"] || x["box"] || "";
 
     html+=`
     <div class="card">
@@ -167,7 +151,7 @@ function show(d){
         ${formatPrice(price)}
       </div>
 
-      ${box? `<span class="box">${box}</span>`:""}
+      ${box ? `<span class="box">${box}</span>` : ""}
     </div>
     `;
   });

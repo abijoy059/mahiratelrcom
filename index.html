@@ -1,140 +1,142 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>MAHIRA TELRCOM</title>
-
+<title>MAHIRA TELRCOM - REDMI</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-
 body{
   font-family: Arial;
-  background: #e9eef5;
+  background: linear-gradient(135deg,#dfe9f3,#ffffff);
   margin:0;
-  padding:0;
+  padding:10px;
 }
 
 /* HEADER */
 .header{
-  background: linear-gradient(45deg, orange, red);
+  background: linear-gradient(90deg,#ff7a00,#ff3d5a);
   color:white;
-  text-align:center;
   padding:18px;
-  font-weight:bold;
-  font-size:22px;
-  border-bottom-left-radius:20px;
-  border-bottom-right-radius:20px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  text-align:center;
+  border-radius:0 0 20px 20px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.2);
 }
 
-.sub{
+.header h1{
+  margin:0;
+  font-size:22px;
+  letter-spacing:1px;
+}
+
+.display{
+  font-weight:bold;
+  margin-top:5px;
   font-size:15px;
-  margin-top:4px;
+}
+
+.total{
+  margin-top:6px;
+  font-size:14px;
 }
 
 /* SEARCH */
 .search{
-  width:90%;
-  margin:15px auto;
-  display:block;
+  width:100%;
   padding:12px;
+  margin:15px 0;
+  border:none;
   border-radius:12px;
-  border:0;
   font-size:16px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  box-shadow:0 3px 10px rgba(0,0,0,0.1);
 }
 
 /* CARD */
 .card{
-  background:#f7f7f7;
-  margin:12px;
+  background:#f4f4f4;
   padding:15px;
+  margin-bottom:15px;
   border-radius:18px;
-  box-shadow:0 5px 12px rgba(0,0,0,0.15);
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.model{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:10px;
 }
 
 .price{
-  background:#dfe8e3;
-  padding:10px 14px;
-  border-radius:12px;
+  background:#e8f0ea;
   display:inline-block;
-  margin-top:8px;
+  padding:12px;
+  border-radius:12px;
   font-weight:bold;
 }
 
-/* COLORS */
-.oled{color:green;}
-.copy{color:#2979ff;}
-.stock{color:red;}
-
+.box{
+  float:right;
+  background:#dde6ff;
+  padding:10px 14px;
+  border-radius:12px;
+  color:#3a63ff;
+  font-weight:bold;
+}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-📱 MAHIRA TELRCOM
+  <h1>📱 MAHIRA TELRCOM</h1>
+  
+  <div class="display">
+    DISPLAY LIST
+  </div>
+  
+  <div class="display">
+    Mi | Redmi | Poco
+  </div>
 
-<div class="sub">DISPLAY LIST</div>
-<div class="sub"><b>Mi | Redmi | Poco</b></div>
-
-<div class="sub">Total Models: <span id="total"></span></div>
+  <div class="total" id="totalModels">
+    Total Models: 0
+  </div>
 </div>
 
-<input class="search" placeholder="Search model..." onkeyup="searchModel(this.value)">
+<input class="search" id="search" placeholder="Search model..." onkeyup="searchModel()">
 
-<div id="models">
-
-  <!-- MODEL 1 -->
-  <div class="card">
-    <h3>Redmi 7</h3>
-    <div class="price">850</div>
-  </div>
-
-  <!-- MODEL 2 -->
-  <div class="card">
-    <h3>NOTE 7, 7PRO</h3>
-    <div class="price">850</div>
-  </div>
-
-  <!-- MODEL 3 -->
-  <div class="card">
-    <h3>Mi NOTE 10 LiTE</h3>
-    <div class="price oled">ASK</div>
-  </div>
-
-  <!-- MODEL 4 -->
-  <div class="card">
-    <h3>NOTE 14 (4G) OR</h3>
-    <div class="price">
-      <span class="oled">OLED :</span>
-      <span class="stock"> STOCK OUT </span>
-      <span class="copy"> COPY :</span> 1500
-    </div>
-  </div>
-
-</div>
+<div id="data"></div>
 
 <script>
+const sheetURL="https://opensheet.elk.sh/1MZexample/Sheet1";  // ← তোমার আগের URL রাখবে
 
-/* AUTO COUNT */
-function updateCount(){
-  let total = document.querySelectorAll(".card").length;
-  document.getElementById("total").innerText = total;
-}
-updateCount();
+fetch(sheetURL)
+.then(res=>res.json())
+.then(data=>{
+  let html="";
+  document.getElementById("totalModels").innerText="Total Models: "+data.length;
 
-/* SEARCH */
-function searchModel(value){
-  let cards = document.querySelectorAll(".card");
+  data.forEach(row=>{
+    html+=`
+    <div class="card">
+      <div class="model">${row.Model}</div>
+      <div class="price">${row.Price}</div>
+      <div class="box">${row.Box}</div>
+    </div>
+    `;
+  });
+
+  document.getElementById("data").innerHTML=html;
+});
+
+function searchModel(){
+  let input=document.getElementById("search").value.toLowerCase();
+  let cards=document.querySelectorAll(".card");
 
   cards.forEach(card=>{
-    let text = card.innerText.toLowerCase();
-    card.style.display = text.includes(value.toLowerCase())
-      ? "block" : "none";
+    let text=card.innerText.toLowerCase();
+    card.style.display=text.includes(input)?"block":"none";
   });
 }
-
 </script>
 
 </body>

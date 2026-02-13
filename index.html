@@ -8,152 +8,132 @@
 <style>
 
 body{
-font-family: Arial;
-background: linear-gradient(135deg,#f1f1f1,#dcdcdc);
-padding:10px;
-margin:0;
+  font-family: Arial;
+  background: #e9eef5;
+  margin:0;
+  padding:0;
 }
 
 /* HEADER */
 .header{
-background: linear-gradient(90deg,#ff7a00,#ff3d54);
-color:white;
-text-align:center;
-padding:14px;
-border-radius:0 0 15px 15px;
-font-weight:bold;
-box-shadow:0 4px 10px rgba(0,0,0,0.2);
-}
-
-.brand{
-font-size:20px;
-}
-
-.display{
-font-size:13px;
-margin-top:3px;
-font-weight:bold;
+  background: linear-gradient(45deg, orange, red);
+  color:white;
+  text-align:center;
+  padding:18px;
+  font-weight:bold;
+  font-size:22px;
+  border-bottom-left-radius:20px;
+  border-bottom-right-radius:20px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
 
 .sub{
-font-size:13px;
-margin-top:2px;
-}
-
-.count{
-font-size:12px;
-margin-top:2px;
+  font-size:15px;
+  margin-top:4px;
 }
 
 /* SEARCH */
 .search{
-margin:12px 0;
-}
-
-.search input{
-width:100%;
-padding:10px;
-border-radius:12px;
-border:none;
-box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  width:90%;
+  margin:15px auto;
+  display:block;
+  padding:12px;
+  border-radius:12px;
+  border:0;
+  font-size:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
 /* CARD */
 .card{
-background:#eee;
-border-radius:18px;
-padding:15px;
-margin-bottom:12px;
-box-shadow:0 4px 10px rgba(0,0,0,0.15);
-}
-
-.model{
-font-size:16px;
-font-weight:bold;
-margin-bottom:8px;
+  background:#f7f7f7;
+  margin:12px;
+  padding:15px;
+  border-radius:18px;
+  box-shadow:0 5px 12px rgba(0,0,0,0.15);
 }
 
 .price{
-display:inline-block;
-background:#dbe5df;
-padding:10px 14px;
-border-radius:12px;
-font-weight:bold;
+  background:#dfe8e3;
+  padding:10px 14px;
+  border-radius:12px;
+  display:inline-block;
+  margin-top:8px;
+  font-weight:bold;
 }
 
-.green{color:green;}
-.red{color:red;}
-.blue{color:#2b6cff;}
+/* COLORS */
+.oled{color:green;}
+.copy{color:#2979ff;}
+.stock{color:red;}
 
 </style>
 </head>
+
 <body>
 
 <div class="header">
-<div class="brand">📱 MAHIRA TELRCOM</div>
+📱 MAHIRA TELRCOM
 
-<div class="display">DISPLAY LIST</div>
-<div class="sub">Mi | Redmi | Poco</div>
+<div class="sub">DISPLAY LIST</div>
+<div class="sub"><b>Mi | Redmi | Poco</b></div>
 
-<div class="count" id="count">Total Models: 0</div>
+<div class="sub">Total Models: <span id="total"></span></div>
 </div>
 
-<div class="search">
-<input type="text" placeholder="Search model..." onkeyup="searchModel(this.value)">
-</div>
+<input class="search" placeholder="Search model..." onkeyup="searchModel(this.value)">
 
-<div id="list">
+<div id="models">
 
-<div class="card">
-<div class="model">Redmi 7</div>
-<div class="price">850</div>
-</div>
+  <!-- MODEL 1 -->
+  <div class="card">
+    <h3>Redmi 7</h3>
+    <div class="price">850</div>
+  </div>
 
-<div class="card">
-<div class="model">NOTE 7, 7PRO</div>
-<div class="price">850</div>
-</div>
+  <!-- MODEL 2 -->
+  <div class="card">
+    <h3>NOTE 7, 7PRO</h3>
+    <div class="price">850</div>
+  </div>
 
-<div class="card">
-<div class="model">Mi NOTE 10 LiTE</div>
-<div class="price green">ASK</div>
-</div>
+  <!-- MODEL 3 -->
+  <div class="card">
+    <h3>Mi NOTE 10 LiTE</h3>
+    <div class="price oled">ASK</div>
+  </div>
 
-<div class="card">
-<div class="model">NOTE 14 (4G) OR</div>
-<div class="price">
-<span class="green">OLED :</span>
-<span class="red"> STOCK OUT</span>
-<span class="blue"> COPY :</span> 1500
-</div>
-</div>
-
-<div class="card">
-<div class="model">NOTE 11 OR</div>
-<div class="price green">ASK</div>
-</div>
-
-<div class="card">
-<div class="model">NOTE 9</div>
-<div class="price">900</div>
-</div>
+  <!-- MODEL 4 -->
+  <div class="card">
+    <h3>NOTE 14 (4G) OR</h3>
+    <div class="price">
+      <span class="oled">OLED :</span>
+      <span class="stock"> STOCK OUT </span>
+      <span class="copy"> COPY :</span> 1500
+    </div>
+  </div>
 
 </div>
 
 <script>
 
-function searchModel(value){
-let cards=document.querySelectorAll(".card");
-value=value.toLowerCase();
-
-cards.forEach(card=>{
-let text=card.innerText.toLowerCase();
-card.style.display=text.includes(value)?"block":"none";
-});
+/* AUTO COUNT */
+function updateCount(){
+  let total = document.querySelectorAll(".card").length;
+  document.getElementById("total").innerText = total;
 }
+updateCount();
 
-document.getElementById("count").innerText=
-"Total Models: "+document.querySelectorAll(".card").length;
+/* SEARCH */
+function searchModel(value){
+  let cards = document.querySelectorAll(".card");
+
+  cards.forEach(card=>{
+    let text = card.innerText.toLowerCase();
+    card.style.display = text.includes(value.toLowerCase())
+      ? "block" : "none";
+  });
+}
 
 </script>
 

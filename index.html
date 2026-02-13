@@ -1,173 +1,159 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>MAHIRA TELRCOM - REDMI</title>
+<title>MAHIRA TELRCOM</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 
 body{
-  font-family: Arial;
-  background:#f1f3f6;
-  margin:0;
+font-family: Arial;
+background: linear-gradient(135deg,#f1f1f1,#dcdcdc);
+padding:10px;
+margin:0;
 }
 
-/* Top Header */
+/* HEADER */
 .header{
-  position:sticky;
-  top:0;
-  z-index:1000;
-  text-align:center;
-  padding:14px;
-  color:white;
-  font-weight:bold;
-  font-size:18px;
-  background:linear-gradient(135deg,#ff7a18,#ff3d54);
-  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+background: linear-gradient(90deg,#ff7a00,#ff3d54);
+color:white;
+text-align:center;
+padding:14px;
+border-radius:0 0 15px 15px;
+font-weight:bold;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+.brand{
+font-size:20px;
+}
+
+.display{
+font-size:13px;
+margin-top:3px;
+font-weight:bold;
+}
+
+.sub{
+font-size:13px;
+margin-top:2px;
 }
 
 .count{
-  font-size:12px;
-  font-weight:normal;
+font-size:12px;
+margin-top:2px;
 }
 
-/* Search */
+/* SEARCH */
 .search{
-  padding:12px;
+margin:12px 0;
 }
 
 .search input{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #ddd;
-  font-size:15px;
+width:100%;
+padding:10px;
+border-radius:12px;
+border:none;
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
 }
 
-/* Card */
+/* CARD */
 .card{
-  background:white;
-  margin:12px;
-  padding:14px;
-  border-radius:16px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+background:#eee;
+border-radius:18px;
+padding:15px;
+margin-bottom:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.15);
 }
 
 .model{
-  font-weight:bold;
-  font-size:17px;
-  margin-bottom:10px;
+font-size:16px;
+font-weight:bold;
+margin-bottom:8px;
 }
 
-/* Price box */
-.pricebox{
-  background:#eef6f1;
-  padding:10px 14px;
-  border-radius:12px;
-  display:inline-block;
-  font-size:15px;
-  font-weight:bold;
+.price{
+display:inline-block;
+background:#dbe5df;
+padding:10px 14px;
+border-radius:12px;
+font-weight:bold;
 }
 
-/* Colors */
-.oled{color:#0a8f2d;}
-.copy{color:#2f6fff;}
-.out{color:#e00000;}
-
-.ask{
-  color:#0a8f2d;
-}
-
-/* Box tag */
-.box{
-  display:inline-block;
-  margin-left:10px;
-  background:#dfe9ff;
-  color:#2f6fff;
-  padding:6px 12px;
-  border-radius:12px;
-  font-size:13px;
-  font-weight:bold;
-}
+.green{color:green;}
+.red{color:red;}
+.blue{color:#2b6cff;}
 
 </style>
 </head>
-
 <body>
 
 <div class="header">
-📱 MAHIRA TELRCOM
+<div class="brand">📱 MAHIRA TELRCOM</div>
+
+<div class="display">DISPLAY LIST</div>
+<div class="sub">Mi | Redmi | Poco</div>
+
 <div class="count" id="count">Total Models: 0</div>
 </div>
 
 <div class="search">
-<input type="text" id="search" placeholder="Search model..." onkeyup="search()">
+<input type="text" placeholder="Search model..." onkeyup="searchModel(this.value)">
 </div>
 
-<div id="data"></div>
+<div id="list">
+
+<div class="card">
+<div class="model">Redmi 7</div>
+<div class="price">850</div>
+</div>
+
+<div class="card">
+<div class="model">NOTE 7, 7PRO</div>
+<div class="price">850</div>
+</div>
+
+<div class="card">
+<div class="model">Mi NOTE 10 LiTE</div>
+<div class="price green">ASK</div>
+</div>
+
+<div class="card">
+<div class="model">NOTE 14 (4G) OR</div>
+<div class="price">
+<span class="green">OLED :</span>
+<span class="red"> STOCK OUT</span>
+<span class="blue"> COPY :</span> 1500
+</div>
+</div>
+
+<div class="card">
+<div class="model">NOTE 11 OR</div>
+<div class="price green">ASK</div>
+</div>
+
+<div class="card">
+<div class="model">NOTE 9</div>
+<div class="price">900</div>
+</div>
+
+</div>
 
 <script>
 
-let sheetID = "1YsgG1Ly_yFgYdVaOtAFt7PQwm1OzusQ48tYmDPvqktg";
-let url = "https://opensheet.elk.sh/" + sheetID + "/Sheet1";
+function searchModel(value){
+let cards=document.querySelectorAll(".card");
+value=value.toLowerCase();
 
-let all=[];
-
-fetch(url)
-.then(r=>r.json())
-.then(d=>{
-  all=d.filter(x=>x["Model"] && x["Model"]!="Model" && !x["Model"].includes("BOX"));
-  show(all);
-  document.getElementById("count").innerText="Total Models: "+all.length;
+cards.forEach(card=>{
+let text=card.innerText.toLowerCase();
+card.style.display=text.includes(value)?"block":"none";
 });
-
-function formatPrice(p){
-
-  if(!p) return '<span class="ask">ASK</span>';
-
-  let t=p.toUpperCase();
-
-  t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
-  t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
-  t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
-
-  return t;
 }
 
-function show(d){
-  let html="";
-
-  d.forEach(x=>{
-
-    let model=x["Model"]||"";
-    let price=x["Price"]||"ASK";
-    let box=x["Box"]||x["BOX"]||"";
-
-    html+=`
-    <div class="card">
-      <div class="model">${model}</div>
-
-      <div class="pricebox">
-        ${formatPrice(price)}
-      </div>
-
-      ${box? `<span class="box">${box}</span>`:""}
-    </div>
-    `;
-  });
-
-  document.getElementById("data").innerHTML=html;
-}
-
-function search(){
-  let s=document.getElementById("search").value.toLowerCase();
-
-  let f=all.filter(x=>
-    (x["Model"]+"").toLowerCase().includes(s)
-  );
-
-  show(f);
-}
+document.getElementById("count").innerText=
+"Total Models: "+document.querySelectorAll(".card").length;
 
 </script>
 

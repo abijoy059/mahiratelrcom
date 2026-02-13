@@ -12,6 +12,7 @@ body{
   margin:0;
 }
 
+/* Header */
 .header{
   position:sticky;
   top:0;
@@ -19,23 +20,27 @@ body{
   text-align:center;
   padding:14px;
   color:white;
-  font-weight:bold;
-  font-size:18px;
   background:linear-gradient(135deg,#ff7a18,#ff3d54);
   box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+
+.title{
+  font-size:18px;
+  font-weight:bold;
 }
 
 .brand{
   font-size:14px;
   font-weight:bold;
-  margin-top:4px;
+  margin-top:2px;
 }
 
 .count{
   font-size:12px;
-  font-weight:normal;
+  margin-top:3px;
 }
 
+/* Search */
 .search{
   padding:12px;
 }
@@ -48,6 +53,7 @@ body{
   font-size:15px;
 }
 
+/* Card */
 .card{
   background:white;
   margin:12px;
@@ -62,6 +68,7 @@ body{
   margin-bottom:10px;
 }
 
+/* Price */
 .pricebox{
   background:#eef6f1;
   padding:10px 14px;
@@ -69,13 +76,16 @@ body{
   display:inline-block;
   font-size:15px;
   font-weight:bold;
+  line-height:1.5;
 }
 
+/* Colors */
 .oled{color:#0a8f2d;}
 .copy{color:#2f6fff;}
 .out{color:#e00000;}
 .ask{color:#0a8f2d;}
 
+/* Box tag */
 .box{
   display:inline-block;
   margin-left:10px;
@@ -93,9 +103,9 @@ body{
 <body>
 
 <div class="header">
-📱 MAHIRA TELRCOM
-<div class="brand">Mi | Redmi | Poco</div>
-<div class="count" id="count">Total Models: 0</div>
+  <div class="title">📱 MAHIRA TELRCOM</div>
+  <div class="brand">Mi | Redmi | Poco</div>
+  <div class="count" id="count">Total Models: 0</div>
 </div>
 
 <div class="search">
@@ -114,22 +124,34 @@ let all=[];
 fetch(url)
 .then(r=>r.json())
 .then(d=>{
-  all=d.filter(x=>x["Model"] && x["Model"]!="Model");
+  all=d.filter(x=>x["Model"] && x["Model"]!="Model" && !x["Model"].includes("BOX"));
   show(all);
   document.getElementById("count").innerText="Total Models: "+all.length;
 });
 
 function formatPrice(p){
+
   if(!p) return '<span class="ask">ASK</span>';
 
   let t=p.toUpperCase();
-  t=t.replace(/\n/g,"<br>");
 
   t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
   t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
   t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
 
+  // line break support
+  t=t.replace(/\n/g,'<br>');
+
   return t;
+}
+
+function getBox(x){
+  for(let key in x){
+    if(key.toLowerCase().includes("box")){
+      return x[key];
+    }
+  }
+  return "";
 }
 
 function show(d){
@@ -138,10 +160,8 @@ function show(d){
   d.forEach(x=>{
 
     let model=x["Model"]||"";
-    let price=x["Price"]||"";
-
-    // REAL BOX AUTO DETECT (C column)
-    let box = x["Box"] || x["BOX"] || x["box"] || "";
+    let price=x["Price"]||"ASK";
+    let box=getBox(x);
 
     html+=`
     <div class="card">
@@ -151,7 +171,7 @@ function show(d){
         ${formatPrice(price)}
       </div>
 
-      ${box ? `<span class="box">${box}</span>` : ""}
+      ${box? `<span class="box">${box}</span>`:""}
     </div>
     `;
   });

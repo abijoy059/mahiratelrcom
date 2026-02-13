@@ -2,109 +2,107 @@
 <html>
 <head>
 <title>MAHIRA TELRCOM - REDMI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+
 body{
-font-family: Arial;
-background: linear-gradient(135deg,#f1f4f9,#e9eef5);
-padding:70px 15px 15px;
+  font-family: Arial;
+  background:#f1f3f6;
+  margin:0;
 }
 
-/* FLOATING HEADER */
+/* Top Header */
 .header{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-background: linear-gradient(135deg,#ff4e50,#ff7a18,#ff2d55);
-color:white;
-padding:14px 10px;
-text-align:center;
-box-shadow:0 6px 16px rgba(0,0,0,0.2);
-z-index:999;
-}
-
-.header h1{
-margin:0;
-font-size:20px;
+  position:sticky;
+  top:0;
+  z-index:1000;
+  text-align:center;
+  padding:14px;
+  color:white;
+  font-weight:bold;
+  font-size:18px;
+  background:linear-gradient(135deg,#ff7a18,#ff3d54);
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
 }
 
 .count{
-font-size:12px;
-margin-top:3px;
-opacity:.9;
+  font-size:12px;
+  font-weight:normal;
 }
 
-/* SEARCH */
-input{
-width:100%;
-padding:12px;
-margin:12px 0;
-border-radius:12px;
-border:1px solid #ddd;
-font-size:16px;
-box-shadow:0 2px 6px rgba(0,0,0,0.05);
+/* Search */
+.search{
+  padding:12px;
 }
 
-/* CARD */
+.search input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:15px;
+}
+
+/* Card */
 .card{
-background:white;
-padding:16px;
-margin:12px 0;
-border-radius:16px;
-box-shadow:0 6px 14px rgba(0,0,0,0.08);
+  background:white;
+  margin:12px;
+  padding:14px;
+  border-radius:16px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
 .model{
-font-weight:bold;
-font-size:18px;
-margin-bottom:8px;
+  font-weight:bold;
+  font-size:17px;
+  margin-bottom:10px;
 }
 
-/* PRICE BOX */
-.priceBox{
-display:inline-block;
-padding:10px 14px;
-border-radius:12px;
-background:#eaf7ee;
-box-shadow:0 4px 10px rgba(0,0,0,0.08);
-margin-top:6px;
+/* Price box */
+.pricebox{
+  background:#eef6f1;
+  padding:10px 14px;
+  border-radius:12px;
+  display:inline-block;
+  font-size:15px;
+  font-weight:bold;
 }
 
-.priceLabel{
-font-size:11px;
-opacity:.6;
+/* Colors */
+.oled{color:#0a8f2d;}
+.copy{color:#2f6fff;}
+.out{color:#e00000;}
+
+.ask{
+  color:#0a8f2d;
 }
 
-.priceText{
-font-size:16px;
-font-weight:bold;
-margin-top:2px;
-}
-
-/* BOX TAG */
+/* Box tag */
 .box{
-display:inline-block;
-margin-left:10px;
-padding:8px 12px;
-border-radius:12px;
-background:#e8f0ff;
-color:#2b5cff;
-font-weight:bold;
-font-size:13px;
-box-shadow:0 4px 10px rgba(0,0,0,0.08);
+  display:inline-block;
+  margin-left:10px;
+  background:#dfe9ff;
+  color:#2f6fff;
+  padding:6px 12px;
+  border-radius:12px;
+  font-size:13px;
+  font-weight:bold;
 }
+
 </style>
 </head>
 
 <body>
 
 <div class="header">
-<h1>📱 MAHIRA TELRCOM</h1>
+📱 MAHIRA TELRCOM
 <div class="count" id="count">Total Models: 0</div>
 </div>
 
+<div class="search">
 <input type="text" id="search" placeholder="Search model..." onkeyup="search()">
+</div>
 
 <div id="data"></div>
 
@@ -118,61 +116,57 @@ let all=[];
 fetch(url)
 .then(r=>r.json())
 .then(d=>{
-all=d;
-show(d);
+  all=d.filter(x=>x["Model"] && x["Model"]!="Model" && !x["Model"].includes("BOX"));
+  show(all);
+  document.getElementById("count").innerText="Total Models: "+all.length;
 });
 
 function formatPrice(p){
 
-if(!p) return "<span style='color:#0a8f2f'>ASK</span>";
+  if(!p) return '<span class="ask">ASK</span>';
 
-p = p.replace(/OLED/gi, "<span style='color:#0a8f2f'>OLED</span>");
-p = p.replace(/COPY/gi, "<span style='color:#1f5cff'>COPY</span>");
-p = p.replace(/STOCK OUT/gi, "<span style='color:#d10000'>STOCK OUT</span>");
-p = p.replace(/COPY/,"<br>COPY");
+  let t=p.toUpperCase();
 
-return p;
+  t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
+  t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
+  t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
+
+  return t;
 }
 
 function show(d){
+  let html="";
 
-document.getElementById("count").innerText =
-"Total Models: " + d.length;
+  d.forEach(x=>{
 
-let html="";
+    let model=x["Model"]||"";
+    let price=x["Price"]||"ASK";
+    let box=x["Box"]||x["BOX"]||"";
 
-d.forEach(x=>{
+    html+=`
+    <div class="card">
+      <div class="model">${model}</div>
 
-let model = x["Model"] || "";
-let price = formatPrice(x["Price"]);
-let box = x["Box"] || x["BOX"] || x["Box "] || "";
+      <div class="pricebox">
+        ${formatPrice(price)}
+      </div>
 
-html+=`
-<div class="card">
-<div class="model">${model}</div>
+      ${box? `<span class="box">${box}</span>`:""}
+    </div>
+    `;
+  });
 
-<div class="priceBox">
-<div class="priceLabel">PRICE</div>
-<div class="priceText">${price}</div>
-</div>
-
-<div class="box">${box}</div>
-</div>
-`;
-
-});
-
-document.getElementById("data").innerHTML=html;
+  document.getElementById("data").innerHTML=html;
 }
 
 function search(){
-let s=document.getElementById("search").value.toLowerCase();
+  let s=document.getElementById("search").value.toLowerCase();
 
-let f=all.filter(x=>
-(x["Model"]+"").toLowerCase().includes(s)
-);
+  let f=all.filter(x=>
+    (x["Model"]+"").toLowerCase().includes(s)
+  );
 
-show(f);
+  show(f);
 }
 
 </script>

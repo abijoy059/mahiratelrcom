@@ -5,138 +5,170 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+
 body{
   font-family: Arial;
-  background: linear-gradient(135deg,#dfe9f3,#ffffff);
+  background:#f1f3f6;
   margin:0;
-  padding:10px;
 }
 
-/* HEADER */
+/* Top Header */
 .header{
-  background: linear-gradient(90deg,#ff7a00,#ff3d5a);
-  color:white;
-  padding:18px;
+  position:sticky;
+  top:0;
+  z-index:1000;
   text-align:center;
-  border-radius:0 0 20px 20px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.2);
-}
-
-.header h1{
-  margin:0;
-  font-size:22px;
-  letter-spacing:1px;
-}
-
-.display{
+  padding:14px;
+  color:white;
   font-weight:bold;
-  margin-top:5px;
+  font-size:18px;
+  background:linear-gradient(135deg,#ff7a18,#ff3d54);
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+
+.count{
+  font-size:12px;
+  font-weight:normal;
+}
+
+/* Search */
+.search{
+  padding:12px;
+}
+
+.search input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #ddd;
   font-size:15px;
 }
 
-.total{
-  margin-top:6px;
-  font-size:14px;
-}
-
-/* SEARCH */
-.search{
-  width:100%;
-  padding:12px;
-  margin:15px 0;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.1);
-}
-
-/* CARD */
+/* Card */
 .card{
-  background:#f4f4f4;
-  padding:15px;
-  margin-bottom:15px;
-  border-radius:18px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+  background:white;
+  margin:12px;
+  padding:14px;
+  border-radius:16px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
 .model{
-  font-size:18px;
   font-weight:bold;
+  font-size:17px;
   margin-bottom:10px;
 }
 
-.price{
-  background:#e8f0ea;
-  display:inline-block;
-  padding:12px;
+/* Price box */
+.pricebox{
+  background:#eef6f1;
+  padding:10px 14px;
   border-radius:12px;
+  display:inline-block;
+  font-size:15px;
   font-weight:bold;
 }
 
+/* Colors */
+.oled{color:#0a8f2d;}
+.copy{color:#2f6fff;}
+.out{color:#e00000;}
+
+.ask{
+  color:#0a8f2d;
+}
+
+/* Box tag */
 .box{
-  float:right;
-  background:#dde6ff;
-  padding:10px 14px;
+  display:inline-block;
+  margin-left:10px;
+  background:#dfe9ff;
+  color:#2f6fff;
+  padding:6px 12px;
   border-radius:12px;
-  color:#3a63ff;
+  font-size:13px;
   font-weight:bold;
 }
+
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <h1>📱 MAHIRA TELRCOM</h1>
-  
-  <div class="display">
-    DISPLAY LIST
-  </div>
-  
-  <div class="display">
-    Mi | Redmi | Poco
-  </div>
-
-  <div class="total" id="totalModels">
-    Total Models: 0
-  </div>
+📱 MAHIRA TELRCOM
+<div class="count" id="count">Total Models: 0</div>
 </div>
 
-<input class="search" id="search" placeholder="Search model..." onkeyup="searchModel()">
+<div class="search">
+<input type="text" id="search" placeholder="Search model..." onkeyup="search()">
+</div>
 
 <div id="data"></div>
 
 <script>
-const sheetURL="https://opensheet.elk.sh/1MZexample/Sheet1";  // ← তোমার আগের URL রাখবে
 
-fetch(sheetURL)
-.then(res=>res.json())
-.then(data=>{
+let sheetID = "1YsgG1Ly_yFgYdVaOtAFt7PQwm1OzusQ48tYmDPvqktg";
+let url = "https://opensheet.elk.sh/" + sheetID + "/Sheet1";
+
+let all=[];
+
+fetch(url)
+.then(r=>r.json())
+.then(d=>{
+  all=d.filter(x=>x["Model"] && x["Model"]!="Model" && !x["Model"].includes("BOX"));
+  show(all);
+  document.getElementById("count").innerText="Total Models: "+all.length;
+});
+
+function formatPrice(p){
+
+  if(!p) return '<span class="ask">ASK</span>';
+
+  let t=p.toUpperCase();
+
+  t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
+  t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
+  t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
+
+  return t;
+}
+
+function show(d){
   let html="";
-  document.getElementById("totalModels").innerText="Total Models: "+data.length;
 
-  data.forEach(row=>{
+  d.forEach(x=>{
+
+    let model=x["Model"]||"";
+    let price=x["Price"]||"ASK";
+    let box=x["Box"]||x["BOX"]||"";
+
     html+=`
     <div class="card">
-      <div class="model">${row.Model}</div>
-      <div class="price">${row.Price}</div>
-      <div class="box">${row.Box}</div>
+      <div class="model">${model}</div>
+
+      <div class="pricebox">
+        ${formatPrice(price)}
+      </div>
+
+      ${box? `<span class="box">${box}</span>`:""}
     </div>
     `;
   });
 
   document.getElementById("data").innerHTML=html;
-});
-
-function searchModel(){
-  let input=document.getElementById("search").value.toLowerCase();
-  let cards=document.querySelectorAll(".card");
-
-  cards.forEach(card=>{
-    let text=card.innerText.toLowerCase();
-    card.style.display=text.includes(input)?"block":"none";
-  });
 }
+
+function search(){
+  let s=document.getElementById("search").value.toLowerCase();
+
+  let f=all.filter(x=>
+    (x["Model"]+"").toLowerCase().includes(s)
+  );
+
+  show(f);
+}
+
 </script>
 
 </body>

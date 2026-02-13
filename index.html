@@ -12,7 +12,7 @@ body{
   margin:0;
 }
 
-/* Header */
+/* Top Header */
 .header{
   position:sticky;
   top:0;
@@ -27,8 +27,9 @@ body{
 }
 
 .brand{
-  font-size:13px;
-  margin-top:2px;
+  font-size:14px;
+  font-weight:bold;
+  margin-top:4px;
 }
 
 .count{
@@ -78,7 +79,10 @@ body{
 .oled{color:#0a8f2d;}
 .copy{color:#2f6fff;}
 .out{color:#e00000;}
-.ask{color:#0a8f2d;}
+
+.ask{
+  color:#0a8f2d;
+}
 
 /* Box tag */
 .box{
@@ -147,7 +151,13 @@ function show(d){
 
     let model=x["Model"]||"";
     let price=x["Price"]||"";
-    let box=x["Box"] || x["BOX"] || x["box"] || "";
+
+    // STRONG AUTO BOX DETECT
+    let box =
+      x["Box"] ||
+      x["BOX"] ||
+      x["box"] ||
+      Object.values(x)[2] || "";
 
     html+=`
     <div class="card">
@@ -157,7 +167,7 @@ function show(d){
         ${formatPrice(price)}
       </div>
 
-      ${box ? `<span class="box">${box}</span>` : ""}
+      ${box? `<span class="box">${box}</span>`:""}
     </div>
     `;
   });

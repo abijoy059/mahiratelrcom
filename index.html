@@ -12,7 +12,7 @@ body{
   margin:0;
 }
 
-/* Top Header */
+/* Header */
 .header{
   position:sticky;
   top:0;
@@ -26,15 +26,14 @@ body{
   box-shadow:0 2px 8px rgba(0,0,0,0.15);
 }
 
-.count{
-  font-size:12px;
-  font-weight:normal;
-}
-
 .brand{
   font-size:13px;
   margin-top:2px;
-  font-weight:bold;
+}
+
+.count{
+  font-size:12px;
+  font-weight:normal;
 }
 
 /* Search */
@@ -79,10 +78,7 @@ body{
 .oled{color:#0a8f2d;}
 .copy{color:#2f6fff;}
 .out{color:#e00000;}
-
-.ask{
-  color:#0a8f2d;
-}
+.ask{color:#0a8f2d;}
 
 /* Box tag */
 .box{
@@ -103,9 +99,7 @@ body{
 
 <div class="header">
 📱 MAHIRA TELRCOM
-
 <div class="brand">Mi | Redmi | Poco</div>
-
 <div class="count" id="count">Total Models: 0</div>
 </div>
 
@@ -136,6 +130,9 @@ function formatPrice(p){
 
   let t=p.toUpperCase();
 
+  // line break support
+  t=t.replace(/\n/g,"<br>");
+
   t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
   t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
   t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
@@ -149,8 +146,8 @@ function show(d){
   d.forEach(x=>{
 
     let model=x["Model"]||"";
-    let price=x["Price"]||"ASK";
-    let box=x["Box"]||x["BOX"]||"";
+    let price=x["Price"]||"";
+    let box=x["Box"] || x["BOX"] || x["box"] || "";
 
     html+=`
     <div class="card">
@@ -160,7 +157,7 @@ function show(d){
         ${formatPrice(price)}
       </div>
 
-      ${box? `<span class="box">${box}</span>`:""}
+      ${box ? `<span class="box">${box}</span>` : ""}
     </div>
     `;
   });

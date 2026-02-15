@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>MAHIRA TELRCOM - REDMI</title>
+<title>MAHIRA TELRCOM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-
 body{
   font-family: Arial;
   background:#f1f3f6;
@@ -14,30 +13,40 @@ body{
 
 /* Header */
 .header{
-  position:sticky;
-  top:0;
-  z-index:1000;
   text-align:center;
   padding:14px;
   color:white;
+  font-weight:bold;
+  font-size:20px;
   background:linear-gradient(135deg,#ff7a18,#ff3d54);
   box-shadow:0 2px 8px rgba(0,0,0,0.15);
 }
 
-.title{
-  font-size:18px;
-  font-weight:bold;
+.brandRow{
+  padding:10px;
+  text-align:center;
 }
 
-.brand{
-  font-size:14px;
+.brandBtn{
+  display:inline-block;
+  margin:5px;
+  padding:8px 14px;
+  border-radius:20px;
+  background:#e9ecff;
+  color:#2f6fff;
   font-weight:bold;
-  margin-top:2px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.active{
+  background:#2f6fff;
+  color:white;
 }
 
 .count{
-  font-size:12px;
-  margin-top:3px;
+  font-size:13px;
+  margin-top:5px;
 }
 
 /* Search */
@@ -68,7 +77,6 @@ body{
   margin-bottom:10px;
 }
 
-/* Price */
 .pricebox{
   background:#eef6f1;
   padding:10px 14px;
@@ -76,16 +84,13 @@ body{
   display:inline-block;
   font-size:15px;
   font-weight:bold;
-  line-height:1.5;
 }
 
-/* Colors */
 .oled{color:#0a8f2d;}
 .copy{color:#2f6fff;}
 .out{color:#e00000;}
 .ask{color:#0a8f2d;}
 
-/* Box tag */
 .box{
   display:inline-block;
   margin-left:10px;
@@ -96,17 +101,17 @@ body{
   font-size:13px;
   font-weight:bold;
 }
-
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <div class="title">📱 MAHIRA TELRCOM</div>
-  <div class="brand">Mi | Redmi | Poco</div>
-  <div class="count" id="count">Total Models: 0</div>
+📱 MAHIRA TELRCOM
+<div class="count" id="count">Total Models: 0</div>
 </div>
+
+<div class="brandRow" id="brands"></div>
 
 <div class="search">
 <input type="text" id="search" placeholder="Search model..." onkeyup="search()">
@@ -116,52 +121,71 @@ body{
 
 <script>
 
-let sheetID = "1YsgG1Ly_yFgYdVaOtAFt7PQwm1OzusQ48tYmDPvqktg";
-let url = "https://opensheet.elk.sh/" + sheetID + "/Sheet1";
-
+let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
+let brandList=[];
+let currentSheet="";
 let all=[];
 
-fetch(url)
+/* Load Brand List */
+fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
 .then(r=>r.json())
 .then(d=>{
-  all=d.filter(x=>x["Model"] && x["Model"]!="Model" && !x["Model"].includes("BOX"));
-  show(all);
-  document.getElementById("count").innerText="Total Models: "+all.length;
+  brandList=d;
+  makeButtons();
 });
 
-function formatPrice(p){
+/* Create brand buttons */
+function makeButtons(){
+  let html="";
+  brandList.forEach((b,i)=>{
+    let name=b["Brand"];
+    let id=b["SheetID"];
+    if(!name||!id) return;
 
+    html+=`<span class="brandBtn" onclick="loadBrand('${id}',this)">${name}</span>`;
+  });
+
+  document.getElementById("brands").innerHTML=html;
+
+  // auto load first brand
+  let first=brandList[0]["SheetID"];
+  loadBrand(first,document.querySelector(".brandBtn"));
+}
+
+/* Load brand data */
+function loadBrand(sheetID,btn){
+  currentSheet=sheetID;
+
+  document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+
+  fetch("https://opensheet.elk.sh/"+sheetID+"/Sheet1")
+  .then(r=>r.json())
+  .then(d=>{
+    all=d.filter(x=>x["Model"] && x["Model"]!="Model" && !x["Model"].includes("BOX"));
+    show(all);
+    document.getElementById("count").innerText="Total Models: "+all.length;
+  });
+}
+
+function formatPrice(p){
   if(!p) return '<span class="ask">ASK</span>';
 
   let t=p.toUpperCase();
-
   t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
   t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
   t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
-
-  // line break support
-  t=t.replace(/\n/g,'<br>');
-
+  t=t.replace(/\n/g,"<br>");
   return t;
-}
-
-function getBox(x){
-  for(let key in x){
-    if(key.toLowerCase().includes("box")){
-      return x[key];
-    }
-  }
-  return "";
 }
 
 function show(d){
   let html="";
 
   d.forEach(x=>{
-
     let model=x["Model"]||"";
     let price=x["Price"]||"ASK";
-    let box=getBox(x);
+    let box=x["Box"]||x["BOX"]||x["C"]||"";
 
     html+=`
     <div class="card">

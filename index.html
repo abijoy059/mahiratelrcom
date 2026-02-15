@@ -20,7 +20,6 @@ body{
   font-size:20px;
   background:linear-gradient(135deg,#ff7a18,#ff3d54);
   box-shadow:0 2px 8px rgba(0,0,0,0.15);
-  user-select:none;
 }
 
 .brandRow{
@@ -142,6 +141,7 @@ body{
 }
 
 }
+
 </style>
 </head>
 
@@ -202,7 +202,7 @@ function loadBrand(sheetID,btn){
   fetch("https://opensheet.elk.sh/"+sheetID+"/Sheet1")
   .then(r=>r.json())
   .then(d=>{
-    all=d.filter(x=>x["Model"] && x["Model"]!="Model" && !x["Model"].includes("BOX"));
+    all=d.filter(x=>x["Model"] && x["Model"]!="Model");
     show(all);
     document.getElementById("count").innerText="Total Models: "+all.length;
   });
@@ -219,13 +219,30 @@ function formatPrice(p){
   return t;
 }
 
+/* ⭐ ULTIMATE SMART BOX DETECT */
+function getBox(x){
+  let box="";
+  for (let key in x){
+    let k=key.toLowerCase();
+    if(
+      k.includes("box") ||
+      k.includes("location") ||
+      k.includes("shelf") ||
+      k=="c"
+    ){
+      if(x[key]) box=x[key];
+    }
+  }
+  return box;
+}
+
 function show(d){
   let html="";
 
   d.forEach(x=>{
     let model=x["Model"]||"";
     let price=x["Price"]||"ASK";
-    let box=x["Box"]||x["BOX"]||x["C"]||"";
+    let box=getBox(x);
 
     html+=`
     <div class="card">

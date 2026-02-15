@@ -112,7 +112,6 @@ body{
 
 .card{
   background:#1e1e1e;
-  box-shadow:0 4px 12px rgba(0,0,0,0.6);
 }
 
 .pricebox{
@@ -132,7 +131,6 @@ body{
 
 .active{
   background:#2f6fff;
-  color:white;
 }
 
 .box{
@@ -141,7 +139,6 @@ body{
 }
 
 }
-
 </style>
 </head>
 
@@ -164,21 +161,28 @@ body{
 
 let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
 let brandList=[];
-let currentSheet="";
 let all=[];
+let currentSheet="";
 
-/* Load Brand List */
+/* 🚀 LOAD FROM CACHE FIRST */
+if(localStorage.getItem("brandList")){
+  brandList=JSON.parse(localStorage.getItem("brandList"));
+  makeButtons();
+}
+
+/* 🔄 LOAD BRAND LIST ONLINE */
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
 .then(r=>r.json())
 .then(d=>{
   brandList=d;
+  localStorage.setItem("brandList",JSON.stringify(d));
   makeButtons();
 });
 
 /* Create brand buttons */
 function makeButtons(){
   let html="";
-  brandList.forEach((b,i)=>{
+  brandList.forEach(b=>{
     let name=b["Brand"];
     let id=b["SheetID"];
     if(!name||!id) return;
@@ -188,8 +192,9 @@ function makeButtons(){
 
   document.getElementById("brands").innerHTML=html;
 
-  let first=brandList[0]["SheetID"];
-  loadBrand(first,document.querySelector(".brandBtn"));
+  if(brandList.length){
+    loadBrand(brandList[0]["SheetID"],document.querySelector(".brandBtn"));
+  }
 }
 
 /* Load brand data */
@@ -199,10 +204,20 @@ function loadBrand(sheetID,btn){
   document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
 
+  /* LOAD CACHE */
+  let cache=localStorage.getItem(sheetID);
+  if(cache){
+    all=JSON.parse(cache);
+    show(all);
+    document.getElementById("count").innerText="Total Models: "+all.length;
+  }
+
+  /* LOAD ONLINE */
   fetch("https://opensheet.elk.sh/"+sheetID+"/Sheet1")
   .then(r=>r.json())
   .then(d=>{
     all=d.filter(x=>x["Model"] && x["Model"]!="Model");
+    localStorage.setItem(sheetID,JSON.stringify(all));
     show(all);
     document.getElementById("count").innerText="Total Models: "+all.length;
   });
@@ -219,21 +234,13 @@ function formatPrice(p){
   return t;
 }
 
-/* ⭐ ULTIMATE SMART BOX DETECT */
+/* 🧠 ULTIMATE SMART BOX DETECT */
 function getBox(x){
-  let box="";
-  for (let key in x){
-    let k=key.toLowerCase();
-    if(
-      k.includes("box") ||
-      k.includes("location") ||
-      k.includes("shelf") ||
-      k=="c"
-    ){
-      if(x[key]) box=x[key];
-    }
+  for(let k in x){
+    if((x[k]+"").toLowerCase().includes("box"))
+      return x[k];
   }
-  return box;
+  return "";
 }
 
 function show(d){

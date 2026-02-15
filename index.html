@@ -103,7 +103,7 @@ body{
   font-weight:bold;
 }
 
-/* 🌙 AUTO DARK MODE (Soft Dark) */
+/* 🌙 AUTO DARK MODE */
 @media (prefers-color-scheme: dark) {
 
 body{
@@ -142,13 +142,12 @@ body{
 }
 
 }
-
 </style>
 </head>
 
 <body>
 
-<div class="header" id="headerTitle">
+<div class="header">
 📱 MAHIRA TELRCOM
 <div class="count" id="count">Total Models: 0</div>
 </div>
@@ -167,29 +166,6 @@ let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
 let brandList=[];
 let currentSheet="";
 let all=[];
-let staffMode=false;
-
-/* 🔐 LONG PRESS STAFF MODE */
-let pressTimer;
-let header=document.getElementById("headerTitle");
-
-header.addEventListener("mousedown",startPress);
-header.addEventListener("touchstart",startPress);
-
-header.addEventListener("mouseup",cancelPress);
-header.addEventListener("mouseleave",cancelPress);
-header.addEventListener("touchend",cancelPress);
-
-function startPress(){
-  pressTimer=setTimeout(()=>{
-    staffMode=!staffMode;
-    show(all);
-  },3000); // 3 sec press
-}
-
-function cancelPress(){
-  clearTimeout(pressTimer);
-}
 
 /* Load Brand List */
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
@@ -259,7 +235,7 @@ function show(d){
         ${formatPrice(price)}
       </div>
 
-      ${staffMode && box ? `<span class="box">${box}</span>`:""}
+      ${box? `<span class="box">${box}</span>`:""}
     </div>
     `;
   });

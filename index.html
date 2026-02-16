@@ -49,7 +49,6 @@ body{
   margin-top:5px;
 }
 
-/* Search */
 .search{
   padding:12px;
 }
@@ -62,7 +61,6 @@ body{
   font-size:15px;
 }
 
-/* Card */
 .card{
   background:white;
   margin:12px;
@@ -102,7 +100,16 @@ body{
   font-weight:bold;
 }
 
-/* 🌙 AUTO DARK MODE */
+/* LOADING SCREEN */
+.loading{
+  text-align:center;
+  padding:40px;
+  font-weight:bold;
+  font-size:18px;
+  color:#888;
+}
+
+/* AUTO DARK MODE */
 @media (prefers-color-scheme: dark) {
 
 body{
@@ -112,6 +119,7 @@ body{
 
 .card{
   background:#1e1e1e;
+  box-shadow:0 4px 12px rgba(0,0,0,0.6);
 }
 
 .pricebox{
@@ -131,13 +139,13 @@ body{
 
 .active{
   background:#2f6fff;
+  color:white;
 }
 
 .box{
   background:#1b2a4a;
   color:#8ab4ff;
 }
-
 }
 </style>
 </head>
@@ -162,24 +170,16 @@ body{
 let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
 let brandList=[];
 let all=[];
-let currentSheet="";
+let loadingID=0;
 
-/* 🚀 LOAD FROM CACHE FIRST */
-if(localStorage.getItem("brandList")){
-  brandList=JSON.parse(localStorage.getItem("brandList"));
-  makeButtons();
-}
-
-/* 🔄 LOAD BRAND LIST ONLINE */
+/* Load Brand List */
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
 .then(r=>r.json())
 .then(d=>{
   brandList=d;
-  localStorage.setItem("brandList",JSON.stringify(d));
   makeButtons();
 });
 
-/* Create brand buttons */
 function makeButtons(){
   let html="";
   brandList.forEach(b=>{
@@ -192,37 +192,35 @@ function makeButtons(){
 
   document.getElementById("brands").innerHTML=html;
 
-  if(brandList.length){
-    loadBrand(brandList[0]["SheetID"],document.querySelector(".brandBtn"));
-  }
+  let first=brandList[0]["SheetID"];
+  loadBrand(first,document.querySelector(".brandBtn"));
 }
 
-/* Load brand data */
+/* CLEAN SWITCH LOADING */
 function loadBrand(sheetID,btn){
-  currentSheet=sheetID;
+
+  loadingID++;
+  let currentLoad=loadingID;
 
   document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
 
-  /* LOAD CACHE */
-  let cache=localStorage.getItem(sheetID);
-  if(cache){
-    all=JSON.parse(cache);
-    show(all);
-    document.getElementById("count").innerText="Total Models: "+all.length;
-  }
+  document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
+  document.getElementById("count").innerText="Loading...";
 
-  /* LOAD ONLINE */
   fetch("https://opensheet.elk.sh/"+sheetID+"/Sheet1")
   .then(r=>r.json())
   .then(d=>{
+
+    if(currentLoad!==loadingID) return; // stop old load
+
     all=d.filter(x=>x["Model"] && x["Model"]!="Model");
-    localStorage.setItem(sheetID,JSON.stringify(all));
     show(all);
     document.getElementById("count").innerText="Total Models: "+all.length;
   });
 }
 
+/* SMART PRICE FORMAT */
 function formatPrice(p){
   if(!p) return '<span class="ask">ASK</span>';
 
@@ -234,13 +232,9 @@ function formatPrice(p){
   return t;
 }
 
-/* 🧠 ULTIMATE SMART BOX DETECT */
+/* ULTIMATE BOX DETECT */
 function getBox(x){
-  for(let k in x){
-    if((x[k]+"").toLowerCase().includes("box"))
-      return x[k];
-  }
-  return "";
+  return x["Box"]||x["BOX"]||x["box"]||x["C"]||x["Column C"]||"";
 }
 
 function show(d){
@@ -248,7 +242,7 @@ function show(d){
 
   d.forEach(x=>{
     let model=x["Model"]||"";
-    let price=x["Price"]||"ASK";
+    let price=x["Price"]||"";
     let box=getBox(x);
 
     html+=`

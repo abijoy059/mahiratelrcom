@@ -100,7 +100,6 @@ body{
   font-weight:bold;
 }
 
-/* LOADING SCREEN */
 .loading{
   text-align:center;
   padding:40px;
@@ -109,22 +108,16 @@ body{
   color:#888;
 }
 
-/* AUTO DARK MODE */
 @media (prefers-color-scheme: dark) {
 
-body{
-  background:#121212;
-  color:white;
-}
+body{ background:#121212; color:white; }
 
 .card{
   background:#1e1e1e;
   box-shadow:0 4px 12px rgba(0,0,0,0.6);
 }
 
-.pricebox{
-  background:#1f2a22;
-}
+.pricebox{ background:#1f2a22; }
 
 .search input{
   background:#1e1e1e;
@@ -196,7 +189,7 @@ function makeButtons(){
   loadBrand(first,document.querySelector(".brandBtn"));
 }
 
-/* CLEAN SWITCH LOADING */
+/* CLEAN SWITCH LOADING + MULTI SHEET SUPPORT */
 function loadBrand(sheetID,btn){
 
   loadingID++;
@@ -208,15 +201,30 @@ function loadBrand(sheetID,btn){
   document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
   document.getElementById("count").innerText="Loading...";
 
-  fetch("https://opensheet.elk.sh/"+sheetID+"/Sheet1")
-  .then(r=>r.json())
-  .then(d=>{
+  let ids = sheetID.split(",").map(x=>x.trim());
 
-    if(currentLoad!==loadingID) return; // stop old load
+  let promises = ids.map(id =>
+    fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
+    .then(r=>r.json())
+  );
 
-    all=d.filter(x=>x["Model"] && x["Model"]!="Model");
+  Promise.all(promises).then(results=>{
+
+    if(currentLoad!==loadingID) return;
+
+    let combined=[];
+
+    results.forEach(d=>{
+      let clean=d.filter(x=>x["Model"] && x["Model"]!="Model");
+      combined = combined.concat(clean);
+    });
+
+    all=combined;
     show(all);
     document.getElementById("count").innerText="Total Models: "+all.length;
+
+  }).catch(()=>{
+    document.getElementById("data").innerHTML='<div class="loading">Error Loading Data</div>';
   });
 }
 
@@ -263,11 +271,7 @@ function show(d){
 
 function search(){
   let s=document.getElementById("search").value.toLowerCase();
-
-  let f=all.filter(x=>
-    (x["Model"]+"").toLowerCase().includes(s)
-  );
-
+  let f=all.filter(x=>(x["Model"]+"").toLowerCase().includes(s));
   show(f);
 }
 

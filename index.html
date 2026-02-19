@@ -11,7 +11,6 @@ body{
   margin:0;
 }
 
-/* Header */
 .header{
   text-align:center;
   padding:14px;
@@ -189,7 +188,7 @@ function makeButtons(){
   loadBrand(first,document.querySelector(".brandBtn"));
 }
 
-/* CLEAN SWITCH LOADING + MULTI SHEET SUPPORT */
+/* CLEAN SWITCH + MULTI SHEET SUPPORT */
 function loadBrand(sheetID,btn){
 
   loadingID++;
@@ -232,7 +231,7 @@ function loadBrand(sheetID,btn){
 function formatPrice(p){
   if(!p) return '<span class="ask">ASK</span>';
 
-  let t=p.toUpperCase();
+  let t=p.toString().toUpperCase();
   t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
   t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
   t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
@@ -240,9 +239,25 @@ function formatPrice(p){
   return t;
 }
 
-/* ULTIMATE BOX DETECT */
+/* ULTRA SMART BOX DETECT */
 function getBox(x){
-  return x["Box"]||x["BOX"]||x["box"]||x["C"]||x["Column C"]||"";
+
+  if(x["Box"]) return x["Box"];
+  if(x["BOX"]) return x["BOX"];
+  if(x["box"]) return x["box"];
+
+  for(let key in x){
+    if(key.toLowerCase().includes("box")){
+      return x[key];
+    }
+  }
+
+  let keys = Object.keys(x);
+  if(keys.length >= 3){
+    return x[keys[2]];
+  }
+
+  return "";
 }
 
 function show(d){
@@ -256,11 +271,7 @@ function show(d){
     html+=`
     <div class="card">
       <div class="model">${model}</div>
-
-      <div class="pricebox">
-        ${formatPrice(price)}
-      </div>
-
+      <div class="pricebox">${formatPrice(price)}</div>
       ${box? `<span class="box">${box}</span>`:""}
     </div>
     `;

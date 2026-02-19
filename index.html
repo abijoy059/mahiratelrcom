@@ -5,11 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-  font-family: Arial;
-  background:#f1f3f6;
-  margin:0;
-}
+body{font-family:Arial;background:#f1f3f6;margin:0;}
 
 .header{
   text-align:center;
@@ -21,10 +17,7 @@ body{
   box-shadow:0 2px 8px rgba(0,0,0,0.15);
 }
 
-.brandRow{
-  padding:10px;
-  text-align:center;
-}
+.brandRow{padding:10px;text-align:center;}
 
 .brandBtn{
   display:inline-block;
@@ -38,19 +31,11 @@ body{
   cursor:pointer;
 }
 
-.active{
-  background:#2f6fff;
-  color:white;
-}
+.active{background:#2f6fff;color:white;}
 
-.count{
-  font-size:13px;
-  margin-top:5px;
-}
+.count{font-size:13px;margin-top:5px;}
 
-.search{
-  padding:12px;
-}
+.search{padding:12px;}
 
 .search input{
   width:100%;
@@ -68,11 +53,7 @@ body{
   box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
-.model{
-  font-weight:bold;
-  font-size:17px;
-  margin-bottom:10px;
-}
+.model{font-weight:bold;font-size:17px;margin-bottom:10px;}
 
 .pricebox{
   background:#eef6f1;
@@ -107,37 +88,14 @@ body{
   color:#888;
 }
 
-@media (prefers-color-scheme: dark) {
-
-body{ background:#121212; color:white; }
-
-.card{
-  background:#1e1e1e;
-  box-shadow:0 4px 12px rgba(0,0,0,0.6);
-}
-
-.pricebox{ background:#1f2a22; }
-
-.search input{
-  background:#1e1e1e;
-  color:white;
-  border:1px solid #333;
-}
-
-.brandBtn{
-  background:#2a2a2a;
-  color:#ddd;
-}
-
-.active{
-  background:#2f6fff;
-  color:white;
-}
-
-.box{
-  background:#1b2a4a;
-  color:#8ab4ff;
-}
+@media (prefers-color-scheme: dark){
+body{background:#121212;color:white;}
+.card{background:#1e1e1e;box-shadow:0 4px 12px rgba(0,0,0,0.6);}
+.pricebox{background:#1f2a22;}
+.search input{background:#1e1e1e;color:white;border:1px solid #333;}
+.brandBtn{background:#2a2a2a;color:#ddd;}
+.active{background:#2f6fff;color:white;}
+.box{background:#1b2a4a;color:#8ab4ff;}
 }
 </style>
 </head>
@@ -160,7 +118,6 @@ body{ background:#121212; color:white; }
 <script>
 
 let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
-let brandList=[];
 let all=[];
 let loadingID=0;
 
@@ -168,27 +125,17 @@ let loadingID=0;
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
 .then(r=>r.json())
 .then(d=>{
-  brandList=d;
-  makeButtons();
-});
-
-function makeButtons(){
   let html="";
-  brandList.forEach(b=>{
-    let name=b["Brand"];
-    let id=b["SheetID"];
-    if(!name||!id) return;
-
-    html+=`<span class="brandBtn" onclick="loadBrand('${id}',this)">${name}</span>`;
+  d.forEach(b=>{
+    if(!b.Brand || !b.SheetID) return;
+    html+=`<span class="brandBtn" onclick="loadBrand('${b.SheetID}',this)">${b.Brand}</span>`;
   });
-
   document.getElementById("brands").innerHTML=html;
 
-  let first=brandList[0]["SheetID"];
-  loadBrand(first,document.querySelector(".brandBtn"));
-}
+  loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
+});
 
-/* CLEAN SWITCH + MULTI SHEET SUPPORT */
+/* CLEAN SWITCH + CACHE + MULTI SHEET */
 function loadBrand(sheetID,btn){
 
   loadingID++;
@@ -198,11 +145,21 @@ function loadBrand(sheetID,btn){
   btn.classList.add("active");
 
   document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
-  document.getElementById("count").innerText="Loading...";
 
-  let ids = sheetID.split(",").map(x=>x.trim());
+  let cacheKey="brand_"+sheetID;
+  let cached=localStorage.getItem(cacheKey);
 
-  let promises = ids.map(id =>
+  /* ⚡ SHOW CACHE FIRST */
+  if(cached){
+    let parsed=JSON.parse(cached);
+    all=parsed;
+    show(all);
+    document.getElementById("count").innerText="Total Models: "+all.length+" (Cached)";
+  }
+
+  let ids=sheetID.split(",").map(x=>x.trim());
+
+  let promises=ids.map(id =>
     fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
     .then(r=>r.json())
   );
@@ -212,25 +169,37 @@ function loadBrand(sheetID,btn){
     if(currentLoad!==loadingID) return;
 
     let combined=[];
-
     results.forEach(d=>{
       let clean=d.filter(x=>x["Model"] && x["Model"]!="Model");
-      combined = combined.concat(clean);
+      combined=combined.concat(clean);
     });
 
     all=combined;
     show(all);
     document.getElementById("count").innerText="Total Models: "+all.length;
 
+    /* 💾 SAVE CACHE */
+    localStorage.setItem(cacheKey,JSON.stringify(combined));
+
   }).catch(()=>{
-    document.getElementById("data").innerHTML='<div class="loading">Error Loading Data</div>';
+    if(!cached){
+      document.getElementById("data").innerHTML='<div class="loading">Offline – No Data</div>';
+    }
   });
 }
 
-/* SMART PRICE FORMAT */
+/* 📶 INTERNET STATUS */
+window.addEventListener("offline",()=>{
+  document.getElementById("count").innerText="⚠ Offline Mode – Showing Saved Data";
+});
+
+window.addEventListener("online",()=>{
+  document.getElementById("count").innerText="Back Online";
+});
+
+/* PRICE FORMAT */
 function formatPrice(p){
   if(!p) return '<span class="ask">ASK</span>';
-
   let t=p.toString().toUpperCase();
   t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
   t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
@@ -241,42 +210,29 @@ function formatPrice(p){
 
 /* ULTRA SMART BOX DETECT */
 function getBox(x){
-
   if(x["Box"]) return x["Box"];
   if(x["BOX"]) return x["BOX"];
   if(x["box"]) return x["box"];
-
   for(let key in x){
     if(key.toLowerCase().includes("box")){
       return x[key];
     }
   }
-
-  let keys = Object.keys(x);
-  if(keys.length >= 3){
-    return x[keys[2]];
-  }
-
+  let keys=Object.keys(x);
+  if(keys.length>=3) return x[keys[2]];
   return "";
 }
 
 function show(d){
   let html="";
-
   d.forEach(x=>{
-    let model=x["Model"]||"";
-    let price=x["Price"]||"";
-    let box=getBox(x);
-
     html+=`
     <div class="card">
-      <div class="model">${model}</div>
-      <div class="pricebox">${formatPrice(price)}</div>
-      ${box? `<span class="box">${box}</span>`:""}
-    </div>
-    `;
+      <div class="model">${x["Model"]||""}</div>
+      <div class="pricebox">${formatPrice(x["Price"]||"")}</div>
+      ${getBox(x)? `<span class="box">${getBox(x)}</span>`:""}
+    </div>`;
   });
-
   document.getElementById("data").innerHTML=html;
 }
 

@@ -1,42 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MAHIRA TELRCOM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{font-family:Arial;background:#f1f3f6;margin:0;}
+.header{text-align:center;padding:14px;color:white;font-weight:bold;font-size:20px;background:linear-gradient(135deg,#ff7a18,#ff3d54);}
+.brandRow{padding:10px;text-align:center;}
+.brandBtn{display:inline-block;margin:5px;padding:8px 14px;border-radius:20px;background:#e9ecff;color:#2f6fff;font-weight:bold;font-size:14px;cursor:pointer;}
+.active{background:#2f6fff;color:white;}
+.count{font-size:13px;margin-top:5px;}
+.search{padding:12px;}
+.search input{width:100%;padding:12px;border-radius:12px;border:1px solid #ddd;font-size:15px;}
+.card{background:white;margin:12px;padding:14px;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+.model{font-weight:bold;font-size:17px;margin-bottom:10px;}
+.pricebox{background:#eef6f1;padding:10px 14px;border-radius:12px;display:inline-block;font-size:15px;font-weight:bold;}
+.oled{color:#0a8f2d;}
+.copy{color:#2f6fff;}
+.out{color:#e00000;}
+.box{display:inline-block;margin-left:10px;background:#dfe9ff;color:#2f6fff;padding:6px 12px;border-radius:12px;font-size:13px;font-weight:bold;}
+.loading{text-align:center;padding:40px;font-weight:bold;}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+📱 MAHIRA TELRCOM
+<div class="count" id="count">Total Models: 0</div>
+</div>
+
+<div class="brandRow" id="brands"></div>
+
+<div class="search">
+<input type="text" id="search" placeholder="Search model..." onkeyup="search()">
+</div>
+
+<div id="data"></div>
+
 <script>
 
 let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
-let brandList=[];
 let all=[];
 
-/* Load Brand List */
+/* Load master brand list */
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
 .then(r=>r.json())
 .then(d=>{
-  brandList=d;
-  makeButtons();
-});
-
-function makeButtons(){
   let html="";
-  brandList.forEach(b=>{
-    let name=b["Brand"];
-    let id=b["SheetID"];
-    if(!name||!id) return;
-
-    html+=`<span class="brandBtn" onclick="loadBrand('${id}',this)">${name}</span>`;
+  d.forEach(b=>{
+    if(!b.Brand || !b.SheetID) return;
+    html+=`<span class="brandBtn" onclick="loadBrand('${b.SheetID}',this)">${b.Brand}</span>`;
   });
-
   document.getElementById("brands").innerHTML=html;
 
-  let first=brandList[0]["SheetID"];
+  // auto load first
+  let first=d[0].SheetID;
   loadBrand(first,document.querySelector(".brandBtn"));
-}
+});
 
-/* MULTI SHEET LOAD */
+/* Multi or single sheet loader */
 function loadBrand(sheetIDs,btn){
 
   document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
 
-  document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
+  document.getElementById("data").innerHTML="<div class='loading'>Loading...</div>";
 
   let ids = sheetIDs.split(",").map(x=>x.trim());
+  let allData=[];
+
   let promises = ids.map(id =>
     fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
     .then(r=>r.json())
@@ -44,28 +78,28 @@ function loadBrand(sheetIDs,btn){
 
   Promise.all(promises).then(results=>{
 
-    let merged=[];
-    results.forEach(d=>{
-      let clean=d.filter(x=>x["Model"] && x["Model"]!="Model");
-      merged = merged.concat(clean);
+    results.forEach(data=>{
+      let clean=data.filter(x=>x.Model && x.Model!="Model");
+      allData = allData.concat(clean);
     });
 
-    all=merged;
+    all=allData;
     show(all);
     document.getElementById("count").innerText="Total Models: "+all.length;
 
+  }).catch(()=>{
+    document.getElementById("data").innerHTML="<div class='loading'>Error loading data</div>";
   });
 
 }
 
-/* SMART BOX DETECT */
+/* Smart box detect */
 function getBox(x){
-  return x["Box"] || x["BOX"] || x["box"] || x[Object.keys(x)[2]] || "";
+  return x.Box || x.BOX || x.box || x[Object.keys(x)[2]] || "";
 }
 
 function formatPrice(p){
-  if(!p) return '<span class="ask">ASK</span>';
-
+  if(!p) return "ASK";
   let t=p.toString().toUpperCase();
   t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
   t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
@@ -74,30 +108,26 @@ function formatPrice(p){
   return t;
 }
 
-function show(d){
+function show(data){
   let html="";
-  d.forEach(x=>{
-    let model=x["Model"]||"";
-    let price=x["Price"]||"";
-    let box=getBox(x);
-
+  data.forEach(x=>{
     html+=`
     <div class="card">
-      <div class="model">${model}</div>
-      <div class="pricebox">${formatPrice(price)}</div>
-      ${box? `<span class="box">${box}</span>`:""}
+      <div class="model">${x.Model}</div>
+      <div class="pricebox">${formatPrice(x.Price)}</div>
+      ${getBox(x)? `<span class="box">${getBox(x)}</span>`:""}
     </div>`;
   });
-
   document.getElementById("data").innerHTML=html;
 }
 
 function search(){
   let s=document.getElementById("search").value.toLowerCase();
-  let f=all.filter(x=>
-    (x["Model"]+"").toLowerCase().includes(s)
-  );
+  let f=all.filter(x=>(x.Model+"").toLowerCase().includes(s));
   show(f);
 }
 
 </script>
+
+</body>
+</html>

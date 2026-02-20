@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{font-family:Arial;background:#f1f3f6;margin:0;}
+body{
+  font-family: Arial;
+  background:#f1f3f6;
+  margin:0;
+}
 
+/* Header */
 .header{
   text-align:center;
   padding:14px;
@@ -53,7 +58,11 @@ body{font-family:Arial;background:#f1f3f6;margin:0;}
   box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
-.model{font-weight:bold;font-size:17px;margin-bottom:10px;}
+.model{
+  font-weight:bold;
+  font-size:17px;
+  margin-bottom:10px;
+}
 
 .pricebox{
   background:#eef6f1;
@@ -80,37 +89,12 @@ body{font-family:Arial;background:#f1f3f6;margin:0;}
   font-weight:bold;
 }
 
-.groupTitle{
-  margin:15px 12px 5px;
-  font-weight:bold;
-  font-size:16px;
-  color:#2f6fff;
-  cursor:pointer;
-}
-
 .loading{
   text-align:center;
   padding:40px;
   font-weight:bold;
   font-size:18px;
   color:#888;
-}
-
-/* Update Bar */
-.updateBar{
-  position:fixed;
-  bottom:90px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#2f6fff;
-  color:white;
-  padding:10px 18px;
-  border-radius:25px;
-  font-weight:bold;
-  cursor:pointer;
-  display:none;
-  box-shadow:0 4px 12px rgba(0,0,0,0.2);
-  z-index:9999;
 }
 
 /* WhatsApp Button */
@@ -134,6 +118,7 @@ body{font-family:Arial;background:#f1f3f6;margin:0;}
   width:28px;
 }
 
+/* AUTO DARK MODE */
 @media (prefers-color-scheme: dark){
 body{background:#121212;color:white;}
 .card{background:#1e1e1e;}
@@ -142,7 +127,6 @@ body{background:#121212;color:white;}
 .brandBtn{background:#2a2a2a;color:#ddd;}
 .active{background:#2f6fff;color:white;}
 .box{background:#1b2a4a;color:#8ab4ff;}
-.groupTitle{color:#8ab4ff;}
 }
 </style>
 </head>
@@ -162,12 +146,9 @@ body{background:#121212;color:white;}
 
 <div id="data"></div>
 
-<div id="updateBar" class="updateBar" onclick="forceRefresh()">
-🔔 New data available – Tap to refresh
-</div>
-
-<a class="whatsappBtn" 
-href="https://wa.me/8801XXXXXXXXX?text=Assalamu%20Alaikum%20Display%20price%20jante%20chai"
+<!-- WhatsApp Button -->
+<a class="whatsappBtn"
+href="https://api.whatsapp.com/send?phone=8801813424704&text=Hi,%20আমি%20আমিনুল।%20আমার%20Display%20লাগবে।"
 target="_blank">
 <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
 </a>
@@ -177,9 +158,8 @@ target="_blank">
 let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
 let all=[];
 let loadingID=0;
-let currentSheetID="";
-let currentHash="";
 
+/* Load Brand List */
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
 .then(r=>r.json())
 .then(d=>{
@@ -192,9 +172,9 @@ fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
   loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
 });
 
+/* CLEAN SWITCH LOADING */
 function loadBrand(sheetID,btn){
 
-  currentSheetID=sheetID;
   loadingID++;
   let currentLoad=loadingID;
 
@@ -202,16 +182,7 @@ function loadBrand(sheetID,btn){
   btn.classList.add("active");
 
   document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
-
-  let cacheKey="brand_"+sheetID;
-  let cached=localStorage.getItem(cacheKey);
-
-  if(cached){
-    let parsed=JSON.parse(cached);
-    all=parsed;
-    show(all);
-    document.getElementById("count").innerText="Total Models: "+all.length+" (Cached)";
-  }
+  document.getElementById("count").innerText="Loading...";
 
   let ids=sheetID.split(",").map(x=>x.trim());
 
@@ -224,26 +195,19 @@ function loadBrand(sheetID,btn){
 
     let combined=[];
     results.forEach(d=>{
-      combined=combined.concat(d.filter(x=>x["Model"]&&x["Model"]!="Model"));
+      combined=combined.concat(d.filter(x=>x["Model"] && x["Model"]!="Model"));
     });
 
-    let newHash=JSON.stringify(combined);
-
-    if(currentHash && currentHash!==newHash){
-      document.getElementById("updateBar").style.display="block";
-    }
-
-    currentHash=newHash;
     all=combined;
     show(all);
     document.getElementById("count").innerText="Total Models: "+all.length;
-    localStorage.setItem(cacheKey,newHash);
-
   });
 }
 
+/* SMART PRICE FORMAT */
 function formatPrice(p){
   if(!p) return '<span class="ask">ASK</span>';
+
   let t=p.toUpperCase();
   t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
   t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
@@ -252,55 +216,44 @@ function formatPrice(p){
   return t;
 }
 
+/* ULTIMATE BOX DETECT */
 function getBox(x){
-  return x["Box"]||x["BOX"]||x["box"]||"";
+  return x["Box"] ||
+         x["BOX"] ||
+         x["box"] ||
+         x["C"] ||
+         x["Column C"] ||
+         x["BOX -"] ||
+         "";
 }
 
 function show(d){
-  let groups={};
+  let html="";
+
   d.forEach(x=>{
-    let model=(x["Model"]||"").toUpperCase();
-    let key=model.includes("NOTE")?"NOTE SERIES":"OTHER";
-    if(!groups[key]) groups[key]=[];
-    groups[key].push(x);
+    let model=x["Model"]||"";
+    let price=x["Price"]||"";
+    let box=getBox(x);
+
+    html+=`
+    <div class="card">
+      <div class="model">${model}</div>
+      <div class="pricebox">${formatPrice(price)}</div>
+      ${box? `<span class="box">${box}</span>`:""}
+    </div>
+    `;
   });
 
-  let html="";
-  for(let group in groups){
-    let gid="grp_"+group.replace(/\s/g,"");
-    html+=`<div class="groupTitle" onclick="toggleGroup('${gid}')">📂 ${group} (${groups[group].length})</div><div id="${gid}">`;
-    groups[group].forEach(x=>{
-      html+=`<div class="card">
-      <div class="model">${x["Model"]||""}</div>
-      <div class="pricebox">${formatPrice(x["Price"]||"")}</div>
-      ${getBox(x)?`<span class="box">${getBox(x)}</span>`:""}
-      </div>`;
-    });
-    html+="</div>";
-  }
   document.getElementById("data").innerHTML=html;
-}
-
-function toggleGroup(id){
-  let el=document.getElementById(id);
-  el.style.display=el.style.display==="none"?"block":"none";
 }
 
 function search(){
   let s=document.getElementById("search").value.toLowerCase();
-  show(all.filter(x=>(x["Model"]+"").toLowerCase().includes(s)));
+  let f=all.filter(x=>
+    (x["Model"]+"").toLowerCase().includes(s)
+  );
+  show(f);
 }
-
-function forceRefresh(){
-  document.getElementById("updateBar").style.display="none";
-  let btn=document.querySelector(".brandBtn.active");
-  if(btn) loadBrand(currentSheetID,btn);
-}
-
-setInterval(()=>{
-  if(!currentSheetID) return;
-  loadBrand(currentSheetID,document.querySelector(".brandBtn.active"));
-},60000);
 
 </script>
 

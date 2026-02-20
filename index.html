@@ -88,6 +88,14 @@ body{font-family:Arial;background:#f1f3f6;margin:0;}
   color:#888;
 }
 
+.groupTitle{
+  margin:15px 12px 5px;
+  font-weight:bold;
+  font-size:16px;
+  color:#2f6fff;
+  cursor:pointer;
+}
+
 @media (prefers-color-scheme: dark){
 body{background:#121212;color:white;}
 .card{background:#1e1e1e;box-shadow:0 4px 12px rgba(0,0,0,0.6);}
@@ -96,6 +104,7 @@ body{background:#121212;color:white;}
 .brandBtn{background:#2a2a2a;color:#ddd;}
 .active{background:#2f6fff;color:white;}
 .box{background:#1b2a4a;color:#8ab4ff;}
+.groupTitle{color:#8ab4ff;}
 }
 </style>
 </head>
@@ -131,7 +140,6 @@ fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
     html+=`<span class="brandBtn" onclick="loadBrand('${b.SheetID}',this)">${b.Brand}</span>`;
   });
   document.getElementById("brands").innerHTML=html;
-
   loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
 });
 
@@ -149,7 +157,6 @@ function loadBrand(sheetID,btn){
   let cacheKey="brand_"+sheetID;
   let cached=localStorage.getItem(cacheKey);
 
-  /* ⚡ SHOW CACHE FIRST */
   if(cached){
     let parsed=JSON.parse(cached);
     all=parsed;
@@ -177,8 +184,6 @@ function loadBrand(sheetID,btn){
     all=combined;
     show(all);
     document.getElementById("count").innerText="Total Models: "+all.length;
-
-    /* 💾 SAVE CACHE */
     localStorage.setItem(cacheKey,JSON.stringify(combined));
 
   }).catch(()=>{
@@ -188,11 +193,10 @@ function loadBrand(sheetID,btn){
   });
 }
 
-/* 📶 INTERNET STATUS */
+/* INTERNET STATUS */
 window.addEventListener("offline",()=>{
   document.getElementById("count").innerText="⚠ Offline Mode – Showing Saved Data";
 });
-
 window.addEventListener("online",()=>{
   document.getElementById("count").innerText="Back Online";
 });
@@ -223,19 +227,62 @@ function getBox(x){
   return "";
 }
 
+/* ADVANCED GROUPING */
 function show(d){
-  let html="";
+
+  d.sort((a,b)=>(a["Model"]||"").localeCompare(b["Model"]||""));
+
+  let groups={};
+
   d.forEach(x=>{
-    html+=`
-    <div class="card">
-      <div class="model">${x["Model"]||""}</div>
-      <div class="pricebox">${formatPrice(x["Price"]||"")}</div>
-      ${getBox(x)? `<span class="box">${getBox(x)}</span>`:""}
-    </div>`;
+    let model=(x["Model"]||"").toUpperCase();
+    let key="OTHER";
+
+    if(model.includes("NOTE")) key="NOTE SERIES";
+    else if(model.startsWith("A")) key="A SERIES";
+    else if(model.startsWith("M")) key="M SERIES";
+    else if(model.startsWith("Y")) key="Y SERIES";
+
+    if(!groups[key]) groups[key]=[];
+    groups[key].push(x);
   });
+
+  let html="";
+
+  for(let group in groups){
+
+    let groupId="grp_"+group.replace(/\s/g,"");
+
+    html+=`
+    <div class="groupTitle" onclick="toggleGroup('${groupId}')">
+      📂 ${group} (${groups[group].length})
+    </div>
+    <div id="${groupId}">
+    `;
+
+    groups[group].forEach(x=>{
+      html+=`
+      <div class="card">
+        <div class="model">${x["Model"]||""}</div>
+        <div class="pricebox">${formatPrice(x["Price"]||"")}</div>
+        ${getBox(x)? `<span class="box">${getBox(x)}</span>`:""}
+      </div>
+      `;
+    });
+
+    html+=`</div>`;
+  }
+
   document.getElementById("data").innerHTML=html;
 }
 
+/* TOGGLE */
+function toggleGroup(id){
+  let el=document.getElementById(id);
+  el.style.display=(el.style.display==="none")?"block":"none";
+}
+
+/* SEARCH */
 function search(){
   let s=document.getElementById("search").value.toLowerCase();
   let f=all.filter(x=>(x["Model"]+"").toLowerCase().includes(s));

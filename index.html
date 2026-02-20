@@ -4,117 +4,162 @@
 <title>MAHIRA TELRCOM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
 body{
-  font-family: Arial;
-  background:#121212;
+  font-family:'Poppins',sans-serif;
   margin:0;
+  background:linear-gradient(180deg,#121212,#1a1a1a);
   color:white;
 }
 
 /* Header */
 .header{
   text-align:center;
-  padding:14px;
-  font-weight:bold;
+  padding:18px;
+  font-weight:700;
   font-size:20px;
   background:linear-gradient(135deg,#ff7a18,#ff3d54);
+  box-shadow:0 4px 15px rgba(0,0,0,0.4);
 }
 
+#count{
+  font-size:14px;
+  margin-top:6px;
+  font-weight:500;
+}
+
+/* Brand Buttons */
 .brandRow{
-  padding:10px;
+  padding:16px;
   text-align:center;
 }
 
 .brandBtn{
   display:inline-block;
-  margin:5px;
-  padding:8px 14px;
-  border-radius:20px;
+  margin:6px;
+  padding:9px 16px;
+  border-radius:22px;
   background:#2a2a2a;
   color:#ddd;
-  font-weight:bold;
+  font-weight:600;
   font-size:14px;
   cursor:pointer;
+  transition:0.2s;
+}
+
+.brandBtn:hover{
+  background:#3a3a3a;
 }
 
 .active{
   background:#2f6fff;
   color:white;
+  box-shadow:0 6px 15px rgba(47,111,255,0.4);
 }
 
+/* Search */
 .search{
-  padding:12px;
+  padding:14px;
 }
 
 .search input{
   width:100%;
-  padding:12px;
-  border-radius:12px;
+  padding:13px;
+  border-radius:14px;
   border:1px solid #333;
   background:#1e1e1e;
   color:white;
+  font-size:14px;
 }
 
+/* Card */
 .card{
   background:#1e1e1e;
-  margin:12px;
-  padding:14px;
-  border-radius:16px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.6);
+  margin:16px;
+  padding:18px;
+  border-radius:18px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.5);
+  transition:0.25s ease;
+}
+
+.card:hover{
+  transform:translateY(-4px);
 }
 
 .model{
-  font-weight:bold;
+  font-weight:600;
   font-size:17px;
-  margin-bottom:10px;
+  margin-bottom:12px;
 }
 
+/* Layout */
 .rowFlex{
   display:flex;
   align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
+  justify-content:space-between;
 }
 
+.leftGroup{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* Price */
 .pricebox{
   background:#1f2a22;
   padding:10px 14px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:bold;
+  border-radius:14px;
+  font-size:14px;
+  font-weight:600;
 }
 
+/* Color Highlights */
 .oled{color:#00ff7f;}
 .copy{color:#4da6ff;}
 .out{color:#ff3b3b;}
 .ask{color:#00ff7f;}
 
+/* Box */
 .box{
   background:#1b2a4a;
   color:#8ab4ff;
   padding:6px 12px;
-  border-radius:12px;
-  font-size:13px;
-  font-weight:bold;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:600;
 }
 
+/* WhatsApp */
 .whatsappMini{
-  margin-left:auto;
-  width:38px;
-  height:38px;
+  width:40px;
+  height:40px;
   background:#25D366;
   border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
   cursor:pointer;
+  box-shadow:0 8px 18px rgba(37,211,102,0.4);
+  transition:0.2s;
+}
+
+.whatsappMini:hover{
+  transform:scale(1.08);
 }
 
 .whatsappMini img{
   width:20px;
 }
 
+.loading{
+  text-align:center;
+  padding:30px;
+  font-weight:600;
+  opacity:0.6;
+}
 </style>
 </head>
 
@@ -161,7 +206,7 @@ function loadBrand(sheetID,btn){
   document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
 
-  document.getElementById("data").innerHTML="Loading...";
+  document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
   document.getElementById("count").innerText="Loading...";
 
   let ids=sheetID.split(",").map(x=>x.trim());
@@ -197,15 +242,14 @@ function formatPrice(p){
   return t;
 }
 
-/* BOX FIX — 100% detect */
+/* Safe Box Detect */
 function getBox(x){
-  return x["Box"] ||
-         x["BOX"] ||
-         x["box"] ||
-         x["C"] ||
-         x["Column C"] ||
-         x["BOX -"] ||
-         "";
+  for(let key in x){
+    if(key.toLowerCase().includes("box")){
+      return x[key];
+    }
+  }
+  return "";
 }
 
 /* Show Data */
@@ -222,15 +266,16 @@ function show(d){
       <div class="model">${model}</div>
 
       <div class="rowFlex">
-        <div class="pricebox">${formatPrice(price)}</div>
-        ${box ? `<span class="box">${box}</span>` : ""}
+        <div class="leftGroup">
+          <div class="pricebox">${formatPrice(price)}</div>
+          ${box ? `<span class="box">${box}</span>` : ""}
+        </div>
 
         <div class="whatsappMini"
           onclick="sendWhatsApp('${model.replace(/'/g,"")}')">
           <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
         </div>
       </div>
-
     </div>
     `;
   });
@@ -238,21 +283,14 @@ function show(d){
   document.getElementById("data").innerHTML=html;
 }
 
-/* WhatsApp Message */
+/* WhatsApp */
 function sendWhatsApp(model){
-
-  let message =
-`Hi, আমার display লাগবে।
-
-Model: ${model}`;
-
-  let url =
-  "https://api.whatsapp.com/send?phone=8801813424704&text="
-  + encodeURIComponent(message);
-
+  let message=`Hi, আমার display লাগবে.\n\nModel: ${model}`;
+  let url="https://api.whatsapp.com/send?phone=8801813424704&text="+encodeURIComponent(message);
   window.open(url,'_blank');
 }
 
+/* Search */
 function search(){
   let s=document.getElementById("search").value.toLowerCase();
   let f=all.filter(x=>

@@ -4,15 +4,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MAHIRA TELECOM</title>
 
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-7WR35SLMGV"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-7WR35SLMGV');
-</script>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -241,7 +232,7 @@ function show(d){
           ${box ? `<span class="box">${box}</span>` : ""}
         </div>
         <div class="whatsappMini"
-          onclick="sendWhatsApp('${model}','${price}','${box}')">
+          onclick="sendWhatsApp(${JSON.stringify(model)},${JSON.stringify(price)},${JSON.stringify(box)})">
           <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
         </div>
       </div>
@@ -253,10 +244,6 @@ function show(d){
 }
 
 function sendWhatsApp(model, price, box){
-
-  gtag('event','whatsapp_click',{
-    model_name: model
-  });
 
   let message =
 `📱 MAHIRA TELECOM

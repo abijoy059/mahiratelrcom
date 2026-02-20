@@ -80,14 +80,6 @@ body{font-family:Arial;background:#f1f3f6;margin:0;}
   font-weight:bold;
 }
 
-.loading{
-  text-align:center;
-  padding:40px;
-  font-weight:bold;
-  font-size:18px;
-  color:#888;
-}
-
 .groupTitle{
   margin:15px 12px 5px;
   font-weight:bold;
@@ -96,9 +88,55 @@ body{font-family:Arial;background:#f1f3f6;margin:0;}
   cursor:pointer;
 }
 
+.loading{
+  text-align:center;
+  padding:40px;
+  font-weight:bold;
+  font-size:18px;
+  color:#888;
+}
+
+/* Update Bar */
+.updateBar{
+  position:fixed;
+  bottom:90px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#2f6fff;
+  color:white;
+  padding:10px 18px;
+  border-radius:25px;
+  font-weight:bold;
+  cursor:pointer;
+  display:none;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  z-index:9999;
+}
+
+/* WhatsApp Button */
+.whatsappBtn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:55px;
+  height:55px;
+  background:#25D366;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  z-index:9999;
+  text-decoration:none;
+}
+
+.whatsappBtn img{
+  width:28px;
+}
+
 @media (prefers-color-scheme: dark){
 body{background:#121212;color:white;}
-.card{background:#1e1e1e;box-shadow:0 4px 12px rgba(0,0,0,0.6);}
+.card{background:#1e1e1e;}
 .pricebox{background:#1f2a22;}
 .search input{background:#1e1e1e;color:white;border:1px solid #333;}
 .brandBtn{background:#2a2a2a;color:#ddd;}
@@ -124,28 +162,39 @@ body{background:#121212;color:white;}
 
 <div id="data"></div>
 
+<div id="updateBar" class="updateBar" onclick="forceRefresh()">
+🔔 New data available – Tap to refresh
+</div>
+
+<a class="whatsappBtn" 
+href="https://wa.me/8801XXXXXXXXX?text=Assalamu%20Alaikum%20Display%20price%20jante%20chai"
+target="_blank">
+<img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+</a>
+
 <script>
 
 let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
 let all=[];
 let loadingID=0;
+let currentSheetID="";
+let currentHash="";
 
-/* Load Brand List */
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
 .then(r=>r.json())
 .then(d=>{
   let html="";
   d.forEach(b=>{
-    if(!b.Brand || !b.SheetID) return;
+    if(!b.Brand||!b.SheetID) return;
     html+=`<span class="brandBtn" onclick="loadBrand('${b.SheetID}',this)">${b.Brand}</span>`;
   });
   document.getElementById("brands").innerHTML=html;
   loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
 });
 
-/* CLEAN SWITCH + CACHE + MULTI SHEET */
 function loadBrand(sheetID,btn){
 
+  currentSheetID=sheetID;
   loadingID++;
   let currentLoad=loadingID;
 
@@ -166,45 +215,36 @@ function loadBrand(sheetID,btn){
 
   let ids=sheetID.split(",").map(x=>x.trim());
 
-  let promises=ids.map(id =>
+  Promise.all(ids.map(id =>
     fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
     .then(r=>r.json())
-  );
-
-  Promise.all(promises).then(results=>{
+  )).then(results=>{
 
     if(currentLoad!==loadingID) return;
 
     let combined=[];
     results.forEach(d=>{
-      let clean=d.filter(x=>x["Model"] && x["Model"]!="Model");
-      combined=combined.concat(clean);
+      combined=combined.concat(d.filter(x=>x["Model"]&&x["Model"]!="Model"));
     });
 
+    let newHash=JSON.stringify(combined);
+
+    if(currentHash && currentHash!==newHash){
+      document.getElementById("updateBar").style.display="block";
+    }
+
+    currentHash=newHash;
     all=combined;
     show(all);
     document.getElementById("count").innerText="Total Models: "+all.length;
-    localStorage.setItem(cacheKey,JSON.stringify(combined));
+    localStorage.setItem(cacheKey,newHash);
 
-  }).catch(()=>{
-    if(!cached){
-      document.getElementById("data").innerHTML='<div class="loading">Offline – No Data</div>';
-    }
   });
 }
 
-/* INTERNET STATUS */
-window.addEventListener("offline",()=>{
-  document.getElementById("count").innerText="⚠ Offline Mode – Showing Saved Data";
-});
-window.addEventListener("online",()=>{
-  document.getElementById("count").innerText="Back Online";
-});
-
-/* PRICE FORMAT */
 function formatPrice(p){
   if(!p) return '<span class="ask">ASK</span>';
-  let t=p.toString().toUpperCase();
+  let t=p.toUpperCase();
   t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
   t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
   t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
@@ -212,82 +252,55 @@ function formatPrice(p){
   return t;
 }
 
-/* ULTRA SMART BOX DETECT */
 function getBox(x){
-  if(x["Box"]) return x["Box"];
-  if(x["BOX"]) return x["BOX"];
-  if(x["box"]) return x["box"];
-  for(let key in x){
-    if(key.toLowerCase().includes("box")){
-      return x[key];
-    }
-  }
-  let keys=Object.keys(x);
-  if(keys.length>=3) return x[keys[2]];
-  return "";
+  return x["Box"]||x["BOX"]||x["box"]||"";
 }
 
-/* ADVANCED GROUPING */
 function show(d){
-
-  d.sort((a,b)=>(a["Model"]||"").localeCompare(b["Model"]||""));
-
   let groups={};
-
   d.forEach(x=>{
     let model=(x["Model"]||"").toUpperCase();
-    let key="OTHER";
-
-    if(model.includes("NOTE")) key="NOTE SERIES";
-    else if(model.startsWith("A")) key="A SERIES";
-    else if(model.startsWith("M")) key="M SERIES";
-    else if(model.startsWith("Y")) key="Y SERIES";
-
+    let key=model.includes("NOTE")?"NOTE SERIES":"OTHER";
     if(!groups[key]) groups[key]=[];
     groups[key].push(x);
   });
 
   let html="";
-
   for(let group in groups){
-
-    let groupId="grp_"+group.replace(/\s/g,"");
-
-    html+=`
-    <div class="groupTitle" onclick="toggleGroup('${groupId}')">
-      📂 ${group} (${groups[group].length})
-    </div>
-    <div id="${groupId}">
-    `;
-
+    let gid="grp_"+group.replace(/\s/g,"");
+    html+=`<div class="groupTitle" onclick="toggleGroup('${gid}')">📂 ${group} (${groups[group].length})</div><div id="${gid}">`;
     groups[group].forEach(x=>{
-      html+=`
-      <div class="card">
-        <div class="model">${x["Model"]||""}</div>
-        <div class="pricebox">${formatPrice(x["Price"]||"")}</div>
-        ${getBox(x)? `<span class="box">${getBox(x)}</span>`:""}
-      </div>
-      `;
+      html+=`<div class="card">
+      <div class="model">${x["Model"]||""}</div>
+      <div class="pricebox">${formatPrice(x["Price"]||"")}</div>
+      ${getBox(x)?`<span class="box">${getBox(x)}</span>`:""}
+      </div>`;
     });
-
-    html+=`</div>`;
+    html+="</div>";
   }
-
   document.getElementById("data").innerHTML=html;
 }
 
-/* TOGGLE */
 function toggleGroup(id){
   let el=document.getElementById(id);
-  el.style.display=(el.style.display==="none")?"block":"none";
+  el.style.display=el.style.display==="none"?"block":"none";
 }
 
-/* SEARCH */
 function search(){
   let s=document.getElementById("search").value.toLowerCase();
-  let f=all.filter(x=>(x["Model"]+"").toLowerCase().includes(s));
-  show(f);
+  show(all.filter(x=>(x["Model"]+"").toLowerCase().includes(s)));
 }
+
+function forceRefresh(){
+  document.getElementById("updateBar").style.display="none";
+  let btn=document.querySelector(".brandBtn.active");
+  if(btn) loadBrand(currentSheetID,btn);
+}
+
+setInterval(()=>{
+  if(!currentSheetID) return;
+  loadBrand(currentSheetID,document.querySelector(".brandBtn.active"));
+},60000);
 
 </script>
 

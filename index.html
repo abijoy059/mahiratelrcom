@@ -30,6 +30,8 @@ body{
 .brandRow{
   text-align:center;
   padding:15px;
+  overflow-x:auto;
+  white-space:nowrap;
 }
 
 .brandBtn{
@@ -121,12 +123,6 @@ body{
 .whatsappMini img{
   width:22px;
 }
-
-.loading{
-  text-align:center;
-  padding:30px;
-  opacity:0.6;
-}
 </style>
 </head>
 
@@ -147,78 +143,72 @@ body{
 
 <script>
 
-let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
-let all=[];
-let loadingID=0;
+// 🔥 YOUR SHEET ID
+const SHEET_ID = "1_wzkgN-QhrrasSRRs-rPs6m4qPk-g2kxD67HjEC7mSA";
 
-fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
+let allData=[];
+let currentBrand="All";
+
+// 🔥 ONE TIME LOAD
+fetch("https://opensheet.elk.sh/"+SHEET_ID+"/Sheet1?t="+new Date().getTime())
 .then(r=>r.json())
 .then(d=>{
-  let html="";
-  d.forEach(b=>{
-    if(!b.Brand||!b.SheetID) return;
-    html+=`<span class="brandBtn" onclick="loadBrand('${b.SheetID}',this)">${b.Brand}</span>`;
-  });
-  document.getElementById("brands").innerHTML=html;
-  loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
+
+  allData = d.filter(x=>x["Model"] && x["Model"]!="Model");
+
+  makeBrandList();
+  showData("All");
+
 });
 
-function loadBrand(sheetID,btn){
+// 🔥 AUTO BRAND DETECT FROM DATA
+function makeBrandList(){
 
-  loadingID++;
-  let currentLoad=loadingID;
+  let brands = new Set();
+
+  allData.forEach(x=>{
+    if(x["Brand"]) brands.add(x["Brand"]);
+  });
+
+  let html='<span class="brandBtn active" onclick="changeBrand(\'All\',this)">All</span>';
+
+  brands.forEach(b=>{
+    html+=`<span class="brandBtn" onclick="changeBrand('${b}',this)">${b}</span>`;
+  });
+
+  document.getElementById("brands").innerHTML=html;
+}
+
+// 🔥 BRAND SWITCH (INSTANT)
+function changeBrand(brand,btn){
+
+  currentBrand=brand;
 
   document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
 
-  document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
-  document.getElementById("count").innerText="Loading...";
-
-  let ids=sheetID.split(",").map(x=>x.trim());
-
-  Promise.all(ids.map(id =>
-    fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
-    .then(r=>r.json())
-  )).then(results=>{
-
-    if(currentLoad!==loadingID) return;
-
-    let combined=[];
-    results.forEach(d=>{
-      combined=combined.concat(
-        d.filter(x=>x["Model"] && x["Model"]!="Model")
-      );
-    });
-
-    all=combined;
-    show(all);
-    document.getElementById("count").innerText="Total Models: "+all.length;
-  });
+  showData(brand);
 }
 
-function formatPrice(p){
-  if(!p) return "ASK";
-  let t=p.toUpperCase();
-  t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
-  t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
-  t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
-  t=t.replace(/\n/g,"<br>");
-  return t;
+// 🔥 SHOW DATA
+function showData(brand){
+
+  let filtered = brand==="All"
+    ? allData
+    : allData.filter(x=>x["Brand"]===brand);
+
+  document.getElementById("count").innerText="Total Models: "+filtered.length;
+
+  renderCards(filtered);
 }
 
-function getBox(x){
-  for(let key in x){
-    if(key.toLowerCase().includes("box")){
-      return x[key];
-    }
-  }
-  return "";
-}
+// 🔥 RENDER CARDS
+function renderCards(data){
 
-function show(d){
   let html="";
 
-  d.forEach((x,index)=>{
+  data.forEach((x,index)=>{
+
     let model=x["Model"]||"";
     let price=x["Price"]||"";
     let box=getBox(x);
@@ -241,16 +231,48 @@ function show(d){
 
   document.getElementById("data").innerHTML=html;
 
-  // Safe click handler
-  document.querySelectorAll(".whatsappMini").forEach(btn=>{
+  document.querySelectorAll(".whatsappMini").forEach((btn,i)=>{
     btn.addEventListener("click", function(){
-      let i=this.getAttribute("data-index");
-      let item=d[i];
+      let item=data[i];
       sendWhatsApp(item["Model"], item["Price"], getBox(item));
     });
   });
 }
 
+// 🔥 SMART PRICE FORMAT
+function formatPrice(p){
+  if(!p) return "ASK";
+  let t=p.toUpperCase();
+  t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
+  t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
+  t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
+  t=t.replace(/\n/g,"<br>");
+  return t;
+}
+
+// 🔥 SMART BOX DETECT
+function getBox(x){
+  for(let key in x){
+    if(key.toLowerCase().includes("box")){
+      return x[key];
+    }
+  }
+  return "";
+}
+
+// 🔥 SEARCH
+function search(){
+  let s=document.getElementById("search").value.toLowerCase();
+
+  let filtered = allData.filter(x=>
+    (x["Model"]+"").toLowerCase().includes(s) &&
+    (currentBrand==="All" || x["Brand"]===currentBrand)
+  );
+
+  renderCards(filtered);
+}
+
+// 🔥 WHATSAPP
 function sendWhatsApp(model, price, box){
 
   let message =
@@ -265,14 +287,6 @@ Box: ${box ? box : "N/A"}
   let url="https://wa.me/8801813424704?text="+encodeURIComponent(message);
 
   window.location.href = url;
-}
-
-function search(){
-  let s=document.getElementById("search").value.toLowerCase();
-  let f=all.filter(x=>
-    (x["Model"]+"").toLowerCase().includes(s)
-  );
-  show(f);
 }
 
 </script>

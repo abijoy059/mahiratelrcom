@@ -1,154 +1,281 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MAHIRA TELECOM</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
-body{margin:0;font-family:Arial;background:#0b0b0f;color:#fff;}
-header{background:linear-gradient(45deg,#ff512f,#ff3d3d);padding:20px;text-align:center;font-weight:bold;font-size:22px;}
-.sub{font-size:16px;margin-top:5px;}
-.container{padding:15px;}
-.brand-btn{display:inline-block;padding:10px 18px;margin:6px;border-radius:20px;background:#1a1a1f;cursor:pointer;}
-.brand-btn.active{background:#2d6cff;}
-.card{background:#1a1a1f;padding:15px;margin:15px 0;border-radius:15px;display:flex;justify-content:space-between;align-items:center;}
-.price{background:#113d2e;padding:8px 12px;border-radius:10px;margin-top:8px;display:inline-block;}
-.box{background:#1e3a8a;padding:8px 12px;border-radius:10px;margin-left:10px;}
-.whatsapp{background:#25D366;width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-input{width:100%;padding:12px;border-radius:12px;border:none;margin-top:10px;background:#1a1a1f;color:white;}
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:#121212;
+  color:white;
+}
+
+.header{
+  text-align:center;
+  padding:18px;
+  font-weight:700;
+  font-size:20px;
+  background:linear-gradient(135deg,#ff7a18,#ff3d54);
+}
+
+#count{
+  font-size:14px;
+  margin-top:5px;
+}
+
+.brandRow{
+  text-align:center;
+  padding:15px;
+}
+
+.brandBtn{
+  display:inline-block;
+  margin:6px;
+  padding:8px 16px;
+  border-radius:20px;
+  background:#2a2a2a;
+  color:#ccc;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.active{
+  background:#2f6fff;
+  color:white;
+}
+
+.search{
+  padding:15px;
+}
+
+.search input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #333;
+  background:#1e1e1e;
+  color:white;
+}
+
+.card{
+  background:#1e1e1e;
+  margin:15px;
+  padding:18px;
+  border-radius:16px;
+}
+
+.model{
+  font-weight:600;
+  font-size:16px;
+  margin-bottom:10px;
+}
+
+.rowFlex{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.leftGroup{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.pricebox{
+  background:#1f2a22;
+  padding:8px 14px;
+  border-radius:12px;
+  font-weight:600;
+  font-size:14px;
+}
+
+.box{
+  background:#1b2a4a;
+  padding:6px 12px;
+  border-radius:12px;
+  font-size:12px;
+  color:#8ab4ff;
+  font-weight:600;
+}
+
+.oled{color:#00ff7f;}
+.copy{color:#4da6ff;}
+.out{color:#ff3b3b;}
+
+.whatsappMini{
+  width:42px;
+  height:42px;
+  background:#25D366;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+.whatsappMini img{
+  width:22px;
+}
+
+.loading{
+  text-align:center;
+  padding:30px;
+  opacity:0.6;
+}
 </style>
 </head>
+
 <body>
 
-<header>
+<div class="header">
 📱 MAHIRA TELECOM
-<div class="sub">Total Models: <span id="total">0</span></div>
-</header>
-
-<div class="container">
-<div id="brands"></div>
-<input type="text" id="search" placeholder="Search model...">
-<div id="list"></div>
+<div id="count">Total Models: 0</div>
 </div>
+
+<div class="brandRow" id="brands"></div>
+
+<div class="search">
+<input type="text" id="search" placeholder="Search model..." onkeyup="search()">
+</div>
+
+<div id="data"></div>
 
 <script>
 
-const SHEET_ID="1_wzkgN-QhrrasSRRs-rPs6m4qPk-g2kxD67HjEC7mSA";
-const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
+let all=[];
+let loadingID=0;
 
-let allData=[];
-let currentBrand="";
-
-function parseCSV(csv){
-let rows=csv.split("\n").slice(1);
-let data=[];
-rows.forEach(r=>{
-let cols=r.split(",");
-if(cols.length>=4){
-data.push({
-Brand:cols[0].replace(/"/g,"").trim(),
-Model:cols[1].replace(/"/g,"").trim(),
-Price:cols[2].replace(/"/g,"").trim(),
-Box:cols[3].replace(/"/g,"").trim()
+fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
+.then(r=>r.json())
+.then(d=>{
+  let html="";
+  d.forEach(b=>{
+    if(!b.Brand||!b.SheetID) return;
+    html+=`<span class="brandBtn" onclick="loadBrand('${b.SheetID}',this)">${b.Brand}</span>`;
+  });
+  document.getElementById("brands").innerHTML=html;
+  loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
 });
-}
-});
-return data;
-}
 
-function saveLocal(data){
-localStorage.setItem("mahiraData",JSON.stringify(data));
-localStorage.setItem("mahiraTime",Date.now());
-}
+function loadBrand(sheetID,btn){
 
-function loadLocal(){
-let saved=localStorage.getItem("mahiraData");
-if(saved){
-allData=JSON.parse(saved);
-initUI();
-}
-}
+  loadingID++;
+  let currentLoad=loadingID;
 
-function fetchSheet(){
-fetch(CSV_URL)
-.then(res=>res.text())
-.then(csv=>{
-let freshData=parseCSV(csv);
-if(freshData.length>0){
-allData=freshData;
-saveLocal(freshData);
-initUI();
-}
-});
-}
+  document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
 
-function initUI(){
-document.getElementById("total").innerText=allData.length;
+  document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
+  document.getElementById("count").innerText="Loading...";
 
-let brands=[...new Set(allData.map(i=>i.Brand))];
-let html="";
-brands.forEach(b=>{
-html+=`<div class="brand-btn" onclick="filterBrand('${b}')">${b}</div>`;
-});
-document.getElementById("brands").innerHTML=html;
-showData(allData);
+  let ids=sheetID.split(",").map(x=>x.trim());
+
+  Promise.all(ids.map(id =>
+    fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
+    .then(r=>r.json())
+  )).then(results=>{
+
+    if(currentLoad!==loadingID) return;
+
+    let combined=[];
+    results.forEach(d=>{
+      combined=combined.concat(
+        d.filter(x=>x["Model"] && x["Model"]!="Model")
+      );
+    });
+
+    all=combined;
+    show(all);
+    document.getElementById("count").innerText="Total Models: "+all.length;
+  });
 }
 
-function filterBrand(b){
-currentBrand=b;
-document.querySelectorAll(".brand-btn").forEach(btn=>{
-btn.classList.remove("active");
-if(btn.innerText===b) btn.classList.add("active");
-});
-showData(allData.filter(i=>i.Brand===b));
+function formatPrice(p){
+  if(!p) return "ASK";
+  let t=p.toUpperCase();
+  t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
+  t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
+  t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
+  t=t.replace(/\n/g,"<br>");
+  return t;
 }
 
-function showData(data){
-let search=document.getElementById("search").value.toLowerCase();
-let filtered=data.filter(i=>i.Model.toLowerCase().includes(search));
-document.getElementById("total").innerText=filtered.length;
-
-let html="";
-filtered.forEach(i=>{
-html+=`
-<div class="card">
-<div>
-<b>${i.Model}</b><br>
-<span class="price">${i.Price}</span>
-<span class="box">${i.Box}</span>
-</div>
-<div class="whatsapp" onclick="send('${i.Model}','${i.Price}','${i.Box}')">📞</div>
-</div>
-`;
-});
-document.getElementById("list").innerHTML=html;
+function getBox(x){
+  for(let key in x){
+    if(key.toLowerCase().includes("box")){
+      return x[key];
+    }
+  }
+  return "";
 }
 
-function send(m,p,b){
-let msg=`📱 MAHIRA TELECOM
+function show(d){
+  let html="";
 
-Model: ${m}
-Price: ${p}
-Box: ${b}
+  d.forEach((x,index)=>{
+    let model=x["Model"]||"";
+    let price=x["Price"]||"";
+    let box=getBox(x);
+
+    html+=`
+    <div class="card">
+      <div class="model">${model}</div>
+      <div class="rowFlex">
+        <div class="leftGroup">
+          <div class="pricebox">${formatPrice(price)}</div>
+          ${box ? `<span class="box">${box}</span>` : ""}
+        </div>
+        <div class="whatsappMini" data-index="${index}">
+          <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+        </div>
+      </div>
+    </div>
+    `;
+  });
+
+  document.getElementById("data").innerHTML=html;
+
+  // Safe click handler
+  document.querySelectorAll(".whatsappMini").forEach(btn=>{
+    btn.addEventListener("click", function(){
+      let i=this.getAttribute("data-index");
+      let item=d[i];
+      sendWhatsApp(item["Model"], item["Price"], getBox(item));
+    });
+  });
+}
+
+function sendWhatsApp(model, price, box){
+
+  let message =
+`📱 MAHIRA TELECOM
+
+Model: ${model}
+Price: ${price ? price : "ASK"}
+Box: ${box ? box : "N/A"}
 
 আমার Display লাগবে।`;
 
-window.open("https://wa.me/8801813424704?text="+encodeURIComponent(msg));
+  let url="https://wa.me/8801813424704?text="+encodeURIComponent(message);
+
+  window.location.href = url;
 }
 
-document.getElementById("search").addEventListener("input",()=>{
-if(currentBrand){
-filterBrand(currentBrand);
-}else{
-showData(allData);
+function search(){
+  let s=document.getElementById("search").value.toLowerCase();
+  let f=all.filter(x=>
+    (x["Model"]+"").toLowerCase().includes(s)
+  );
+  show(f);
 }
-});
-
-// 🚀 Smart System
-loadLocal();   // Instant load
-fetchSheet();  // Background update
 
 </script>
+
 </body>
 </html>

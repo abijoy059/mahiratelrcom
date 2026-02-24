@@ -6,108 +6,119 @@
 <title>MAHIRA TELECOM</title>
 
 <style>
-body{
-margin:0;
-font-family:Arial, sans-serif;
-background:#0b0b0f;
-color:white;
-}
-
-header{
-background:linear-gradient(45deg,#ff512f,#ff3d3d);
-padding:20px;
-text-align:center;
-font-weight:bold;
-font-size:22px;
-}
-
-.sub{
-font-size:16px;
-margin-top:5px;
-}
-
-.container{
-padding:15px;
-}
-
-.brand-btn{
-display:inline-block;
-padding:10px 18px;
-margin:6px;
-border-radius:20px;
-background:#1a1a1f;
-cursor:pointer;
-transition:.2s;
-}
-
-.brand-btn.active{
-background:#2d6cff;
-}
-
-.card{
-background:#1a1a1f;
-padding:15px;
-margin:15px 0;
-border-radius:15px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.price{
-background:#113d2e;
-padding:8px 12px;
-border-radius:10px;
-margin-top:8px;
-display:inline-block;
-}
-
-.box{
-background:#1e3a8a;
-padding:8px 12px;
-border-radius:10px;
-margin-left:10px;
-}
-
-.whatsapp{
-background:#25D366;
-width:45px;
-height:45px;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-}
-
-input{
-width:100%;
-padding:12px;
-border-radius:12px;
-border:none;
-margin-top:10px;
-background:#1a1a1f;
-color:white;
-}
+body{margin:0;font-family:Arial;background:#0b0b0f;color:#fff;}
+header{background:linear-gradient(45deg,#ff512f,#ff3d3d);padding:20px;text-align:center;font-weight:bold;font-size:22px;}
+.sub{font-size:16px;margin-top:5px;}
+.container{padding:15px;}
+.brand-btn{display:inline-block;padding:10px 18px;margin:6px;border-radius:20px;background:#1a1a1f;cursor:pointer;}
+.brand-btn.active{background:#2d6cff;}
+.card{background:#1a1a1f;padding:15px;margin:15px 0;border-radius:15px;display:flex;justify-content:space-between;align-items:center;}
+.price{background:#113d2e;padding:8px 12px;border-radius:10px;margin-top:8px;display:inline-block;}
+.box{background:#1e3a8a;padding:8px 12px;border-radius:10px;margin-left:10px;}
+.whatsapp{background:#25D366;width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+input{width:100%;padding:12px;border-radius:12px;border:none;margin-top:10px;background:#1a1a1f;color:white;}
 </style>
 </head>
 <body>
 
 <header>
 📱 MAHIRA TELECOM
-<div class="sub">Total Models: <span id="total">Loading...</span></div>
+<div class="sub">Total Models: <span id="total">0</span></div>
 </header>
 
 <div class="container">
-
 <div id="brands"></div>
-
 <input type="text" id="search" placeholder="Search model...">
-
 <div id="list"></div>
-
 </div>
 
 <script>
 
-const SHEET_ID = "1
+const CSV_URL = "https://docs.google.com/spreadsheets/d/1_wzkgN-QhrrasSRRs-rPs6m4qPk-g2kxD67HjEC7mSA/gviz/tq?tqx=out:csv";
+
+let allData=[];
+let currentBrand="";
+
+fetch(CSV_URL)
+.then(res=>res.text())
+.then(csv=>{
+let rows = csv.split("\n").slice(1);
+rows.forEach(r=>{
+let cols = r.split(",");
+if(cols.length>=4){
+allData.push({
+Brand: cols[0].replace(/"/g,""),
+Model: cols[1].replace(/"/g,""),
+Price: cols[2].replace(/"/g,""),
+Box: cols[3].replace(/"/g,"")
+});
+}
+});
+init();
+});
+
+function init(){
+document.getElementById("total").innerText = allData.length;
+
+let brands=[...new Set(allData.map(i=>i.Brand))];
+let html="";
+brands.forEach(b=>{
+html+=`<div class="brand-btn" onclick="filterBrand('${b}')">${b}</div>`;
+});
+document.getElementById("brands").innerHTML=html;
+showData(allData);
+}
+
+function filterBrand(b){
+currentBrand=b;
+document.querySelectorAll(".brand-btn").forEach(btn=>{
+btn.classList.remove("active");
+if(btn.innerText===b) btn.classList.add("active");
+});
+showData(allData.filter(i=>i.Brand===b));
+}
+
+function showData(data){
+let search=document.getElementById("search").value.toLowerCase();
+let filtered=data.filter(i=>i.Model.toLowerCase().includes(search));
+document.getElementById("total").innerText=filtered.length;
+
+let html="";
+filtered.forEach(i=>{
+html+=`
+<div class="card">
+<div>
+<b>${i.Model}</b><br>
+<span class="price">${i.Price}</span>
+<span class="box">${i.Box}</span>
+</div>
+<div class="whatsapp" onclick="send('${i.Model}','${i.Price}','${i.Box}')">📞</div>
+</div>
+`;
+});
+document.getElementById("list").innerHTML=html;
+}
+
+function send(m,p,b){
+let msg=`📱 MAHIRA TELECOM
+
+Model: ${m}
+Price: ${p}
+Box: ${b}
+
+আমার Display লাগবে।`;
+
+window.open("https://wa.me/8801813424704?text="+encodeURIComponent(msg));
+}
+
+document.getElementById("search").addEventListener("input",()=>{
+if(currentBrand){
+filterBrand(currentBrand);
+}else{
+showData(allData);
+}
+});
+
+</script>
+</body>
+</html>

@@ -7,11 +7,6 @@
 
 <title>MAHIRA TELECOM</title>
 
-<meta http-equiv="Cache-Control" content="max-age=31536000">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -22,8 +17,6 @@ font-family:'Poppins',sans-serif;
 background:#121212;
 color:white;
 }
-
-/* HEADER */
 
 .header{
 text-align:center;
@@ -79,29 +72,24 @@ font-size:15px;
 outline:none;
 }
 
-/* Search Icon */
-
 .searchIcon{
 position:absolute;
-left:28px;
+left:25px;
 top:50%;
 transform:translateY(-50%);
 font-size:18px;
 opacity:0.7;
 }
 
-/* Mic */
+/* MIC */
 
 .mic{
 position:absolute;
-right:28px;
+right:25px;
 top:50%;
 transform:translateY(-50%);
 cursor:pointer;
-transition:0.2s;
 }
-
-/* SVG Size */
 
 .mic svg{
 width:22px;
@@ -109,19 +97,15 @@ height:22px;
 fill:#cccccc;
 }
 
-/* Glow */
-
 .mic.active svg{
 fill:#ff3b3b;
 animation:pulse 1s infinite;
 }
 
 @keyframes pulse{
-
 0%{transform:scale(1);}
 50%{transform:scale(1.2);}
 100%{transform:scale(1);}
-
 }
 
 /* CARD */
@@ -172,8 +156,6 @@ font-weight:600;
 .copy{color:#4da6ff;}
 .out{color:#ff3b3b;}
 
-/* WhatsApp */
-
 .whatsappMini{
 width:42px;
 height:42px;
@@ -189,8 +171,6 @@ cursor:pointer;
 width:22px;
 }
 
-/* Loading */
-
 .loading{
 text-align:center;
 padding:30px;
@@ -203,11 +183,8 @@ opacity:0.6;
 <body>
 
 <div class="header">
-
 📱 MAHIRA TELECOM
-
 <div id="count">Total Models: 0</div>
-
 </div>
 
 <div class="brandRow" id="brands"></div>
@@ -224,9 +201,7 @@ onkeyup="search()">
 <div class="mic" onclick="startVoice()" id="micBtn">
 
 <svg viewBox="0 0 24 24">
-
-<path d="M12 15a3 3 0 003-3V5a3 3 0 10-6 0v7a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 0014 0h-2zm-5 7a7 7 0 007-7h-2a5 5 0 01-10 0H5a7 7 0 007 7z"/>
-
+<path d="M12 15a3 3 0 003-3V5a3 3 0 10-6 0v7a3 3 0 003 3zM19 11a7 7 0 01-14 0h2a5 5 0 0010 0h2z"/>
 </svg>
 
 </div>
@@ -242,10 +217,10 @@ let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
 let all=[];
 let loadingID=0;
 
+/* LOAD BRANDS */
+
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
-
 .then(r=>r.json())
-
 .then(d=>{
 
 let html="";
@@ -264,6 +239,8 @@ loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
 
 });
 
+/* LOAD DATA (EXTREME LITE SPEED) */
+
 function loadBrand(sheetID,btn){
 
 loadingID++;
@@ -280,7 +257,7 @@ document.getElementById("count").innerText="Loading...";
 
 let ids=sheetID.split(",").map(x=>x.trim());
 
-Promise.all(ids.map(id=>
+Promise.all(ids.map(id =>
 fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
 .then(r=>r.json())
 )).then(results=>{
@@ -305,6 +282,8 @@ document.getElementById("count").innerText="Total Models: "+all.length;
 
 }
 
+/* FORMAT PRICE */
+
 function formatPrice(p){
 
 if(!p) return "ASK";
@@ -320,17 +299,23 @@ return t;
 
 }
 
+/* BOX AUTO DETECT */
+
 function getBox(x){
 
 for(let key in x){
+
 if(key.toLowerCase().includes("box")){
 return x[key];
 }
+
 }
 
 return "";
 
 }
+
+/* SHOW */
 
 function show(d){
 
@@ -372,6 +357,8 @@ ${box ? `<span class="box">${box}</span>` : ""}
 
 document.getElementById("data").innerHTML=html;
 
+/* CLICK SAFE */
+
 document.querySelectorAll(".whatsappMini").forEach(btn=>{
 
 btn.onclick=function(){
@@ -388,23 +375,7 @@ sendWhatsApp(item["Model"],item["Price"],getBox(item));
 
 }
 
-function sendWhatsApp(model,price,box){
-
-let message=
-
-`📱 MAHIRA TELECOM
-
-Model: ${model}
-Price: ${price ? price : "ASK"}
-Box: ${box ? box : "N/A"}
-
-আমার Display লাগবে।`;
-
-let url="https://wa.me/8801813424704?text="+encodeURIComponent(message);
-
-window.location.href=url;
-
-}
+/* SEARCH */
 
 function search(){
 
@@ -418,7 +389,7 @@ show(f);
 
 }
 
-/* English Voice */
+/* VOICE SEARCH */
 
 function startVoice(){
 
@@ -426,15 +397,13 @@ let mic=document.getElementById("micBtn");
 
 mic.classList.add("active");
 
-let recognition = new webkitSpeechRecognition();
+let recognition=new webkitSpeechRecognition();
 
 recognition.lang="en-US";
 
-recognition.onresult=function(event){
+recognition.onresult=function(e){
 
-let text=event.results[0][0].transcript;
-
-document.getElementById("search").value=text;
+document.getElementById("search").value=e.results[0][0].transcript;
 
 search();
 

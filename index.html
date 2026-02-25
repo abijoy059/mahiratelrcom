@@ -70,7 +70,7 @@ position:relative;
 
 .search input{
 width:100%;
-padding:16px 50px 16px 16px;
+padding:16px 60px 16px 45px;
 border-radius:25px;
 border:1px solid #2a2a2a;
 background:#161616;
@@ -79,16 +79,51 @@ font-size:15px;
 outline:none;
 }
 
-/* MIC BUTTON */
+/* Search Icon */
+
+.searchIcon{
+position:absolute;
+left:28px;
+top:50%;
+transform:translateY(-50%);
+font-size:18px;
+opacity:0.7;
+}
+
+/* Mic */
 
 .mic{
-
 position:absolute;
-right:25px;
+right:28px;
 top:50%;
 transform:translateY(-50%);
 font-size:20px;
 cursor:pointer;
+transition:0.2s;
+}
+
+/* Voice Glow */
+
+.mic.active{
+color:#ff3b3b;
+animation:pulse 1s infinite;
+}
+
+/* Pulse Animation */
+
+@keyframes pulse{
+
+0%{
+transform:translateY(-50%) scale(1);
+}
+
+50%{
+transform:translateY(-50%) scale(1.2);
+}
+
+100%{
+transform:translateY(-50%) scale(1);
+}
 
 }
 
@@ -184,10 +219,12 @@ opacity:0.6;
 
 <input type="text"
 id="search"
-placeholder="🔍 Search model..."
+placeholder="Search model..."
 onkeyup="search()">
 
-<div class="mic" onclick="startVoice()">🎤</div>
+<div class="searchIcon">🔎</div>
+
+<div class="mic" onclick="startVoice()" id="micBtn">🎤</div>
 
 </div>
 
@@ -253,9 +290,7 @@ let combined=[];
 results.forEach(d=>{
 
 combined=combined.concat(
-
 d.filter(x=>x["Model"] && x["Model"]!="Model")
-
 );
 
 });
@@ -326,9 +361,7 @@ ${box ? `<span class="box">${box}</span>` : ""}
 </div>
 
 <div class="whatsappMini" data-index="${index}">
-
 <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
-
 </div>
 
 </div>
@@ -357,8 +390,6 @@ sendWhatsApp(item["Model"],item["Price"],getBox(item));
 
 }
 
-/* WHATSAPP */
-
 function sendWhatsApp(model,price,box){
 
 let message=
@@ -377,8 +408,6 @@ window.location.href=url;
 
 }
 
-/* SEARCH */
-
 function search(){
 
 let s=document.getElementById("search").value.toLowerCase();
@@ -391,13 +420,17 @@ show(f);
 
 }
 
-/* VOICE SEARCH */
+/* Bangla + English Voice */
 
 function startVoice(){
 
+let mic=document.getElementById("micBtn");
+
+mic.classList.add("active");
+
 let recognition = new webkitSpeechRecognition();
 
-recognition.lang="en-US";
+recognition.lang="bn-BD";
 
 recognition.onresult=function(event){
 
@@ -406,6 +439,12 @@ let text=event.results[0][0].transcript;
 document.getElementById("search").value=text;
 
 search();
+
+};
+
+recognition.onend=function(){
+
+mic.classList.remove("active");
 
 };
 

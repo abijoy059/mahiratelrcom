@@ -1,106 +1,119 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>MAHIRA TELECOM</title>
+
+<!-- Speed Boost -->
+<meta http-equiv="Cache-Control" content="max-age=31536000">
+<meta http-equiv="Pragma" content="cache">
+<meta name="format-detection" content="telephone=no">
+
+<!-- Faster Google Font Load -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
+
 body{
-  margin:0;
-  font-family:'Poppins',sans-serif;
-  background:#121212;
-  color:white;
+margin:0;
+font-family:'Poppins',sans-serif;
+background:#121212;
+color:white;
 }
 
 .header{
-  text-align:center;
-  padding:18px;
-  font-weight:700;
-  font-size:20px;
-  background:linear-gradient(135deg,#ff7a18,#ff3d54);
+text-align:center;
+padding:18px;
+font-weight:700;
+font-size:20px;
+background:linear-gradient(135deg,#ff7a18,#ff3d54);
 }
 
 #count{
-  font-size:14px;
-  margin-top:5px;
+font-size:14px;
+margin-top:5px;
 }
 
 .brandRow{
-  text-align:center;
-  padding:15px;
+text-align:center;
+padding:15px;
 }
 
 .brandBtn{
-  display:inline-block;
-  margin:6px;
-  padding:8px 16px;
-  border-radius:20px;
-  background:#2a2a2a;
-  color:#ccc;
-  cursor:pointer;
-  font-size:14px;
+display:inline-block;
+margin:6px;
+padding:8px 16px;
+border-radius:20px;
+background:#2a2a2a;
+color:#ccc;
+cursor:pointer;
+font-size:14px;
 }
 
 .active{
-  background:#2f6fff;
-  color:white;
+background:#2f6fff;
+color:white;
 }
 
 .search{
-  padding:15px;
+padding:15px;
 }
 
 .search input{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #333;
-  background:#1e1e1e;
-  color:white;
+width:100%;
+padding:12px;
+border-radius:12px;
+border:1px solid #333;
+background:#1e1e1e;
+color:white;
 }
 
 .card{
-  background:#1e1e1e;
-  margin:15px;
-  padding:18px;
-  border-radius:16px;
+background:#1e1e1e;
+margin:15px;
+padding:18px;
+border-radius:16px;
 }
 
 .model{
-  font-weight:600;
-  font-size:16px;
-  margin-bottom:10px;
+font-weight:600;
+font-size:16px;
+margin-bottom:10px;
 }
 
 .rowFlex{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
 .leftGroup{
-  display:flex;
-  gap:10px;
-  align-items:center;
+display:flex;
+gap:10px;
+align-items:center;
 }
 
 .pricebox{
-  background:#1f2a22;
-  padding:8px 14px;
-  border-radius:12px;
-  font-weight:600;
-  font-size:14px;
+background:#1f2a22;
+padding:8px 14px;
+border-radius:12px;
+font-weight:600;
+font-size:14px;
 }
 
 .box{
-  background:#1b2a4a;
-  padding:6px 12px;
-  border-radius:12px;
-  font-size:12px;
-  color:#8ab4ff;
-  font-weight:600;
+background:#1b2a4a;
+padding:6px 12px;
+border-radius:12px;
+font-size:12px;
+color:#8ab4ff;
+font-weight:600;
 }
 
 .oled{color:#00ff7f;}
@@ -108,25 +121,26 @@ body{
 .out{color:#ff3b3b;}
 
 .whatsappMini{
-  width:42px;
-  height:42px;
-  background:#25D366;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
+width:42px;
+height:42px;
+background:#25D366;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
 }
 
 .whatsappMini img{
-  width:22px;
+width:22px;
 }
 
 .loading{
-  text-align:center;
-  padding:30px;
-  opacity:0.6;
+text-align:center;
+padding:30px;
+opacity:0.6;
 }
+
 </style>
 </head>
 
@@ -154,106 +168,114 @@ let loadingID=0;
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
 .then(r=>r.json())
 .then(d=>{
-  let html="";
-  d.forEach(b=>{
-    if(!b.Brand||!b.SheetID) return;
-    html+=`<span class="brandBtn" onclick="loadBrand('${b.SheetID}',this)">${b.Brand}</span>`;
-  });
-  document.getElementById("brands").innerHTML=html;
-  loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
+let html="";
+d.forEach(b=>{
+if(!b.Brand||!b.SheetID) return;
+html+=`<span class="brandBtn" onclick="loadBrand('${b.SheetID}',this)">${b.Brand}</span>`;
+});
+document.getElementById("brands").innerHTML=html;
+loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
 });
 
 function loadBrand(sheetID,btn){
 
-  loadingID++;
-  let currentLoad=loadingID;
+loadingID++;
+let currentLoad=loadingID;
 
-  document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
+document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
 
-  document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
-  document.getElementById("count").innerText="Loading...";
+document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
+document.getElementById("count").innerText="Loading...";
 
-  let ids=sheetID.split(",").map(x=>x.trim());
+let ids=sheetID.split(",").map(x=>x.trim());
 
-  Promise.all(ids.map(id =>
-    fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
-    .then(r=>r.json())
-  )).then(results=>{
+Promise.all(ids.map(id =>
+fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
+.then(r=>r.json())
+)).then(results=>{
 
-    if(currentLoad!==loadingID) return;
+if(currentLoad!==loadingID) return;
 
-    let combined=[];
-    results.forEach(d=>{
-      combined=combined.concat(
-        d.filter(x=>x["Model"] && x["Model"]!="Model")
-      );
-    });
+let combined=[];
+results.forEach(d=>{
+combined=combined.concat(
+d.filter(x=>x["Model"] && x["Model"]!="Model")
+);
+});
 
-    all=combined;
-    show(all);
-    document.getElementById("count").innerText="Total Models: "+all.length;
-  });
+all=combined;
+show(all);
+document.getElementById("count").innerText="Total Models: "+all.length;
+
+});
 }
 
 function formatPrice(p){
-  if(!p) return "ASK";
-  let t=p.toUpperCase();
-  t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
-  t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
-  t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
-  t=t.replace(/\n/g,"<br>");
-  return t;
+if(!p) return "ASK";
+let t=p.toUpperCase();
+t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
+t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
+t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
+t=t.replace(/\n/g,"<br>");
+return t;
 }
 
 function getBox(x){
-  for(let key in x){
-    if(key.toLowerCase().includes("box")){
-      return x[key];
-    }
-  }
-  return "";
+for(let key in x){
+if(key.toLowerCase().includes("box")){
+return x[key];
+}
+}
+return "";
 }
 
 function show(d){
-  let html="";
 
-  d.forEach((x,index)=>{
-    let model=x["Model"]||"";
-    let price=x["Price"]||"";
-    let box=getBox(x);
+let html="";
 
-    html+=`
-    <div class="card">
-      <div class="model">${model}</div>
-      <div class="rowFlex">
-        <div class="leftGroup">
-          <div class="pricebox">${formatPrice(price)}</div>
-          ${box ? `<span class="box">${box}</span>` : ""}
-        </div>
-        <div class="whatsappMini" data-index="${index}">
-          <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
-        </div>
-      </div>
-    </div>
-    `;
-  });
+d.forEach((x,index)=>{
 
-  document.getElementById("data").innerHTML=html;
+let model=x["Model"]||"";
+let price=x["Price"]||"";
+let box=getBox(x);
 
-  // Safe click handler
-  document.querySelectorAll(".whatsappMini").forEach(btn=>{
-    btn.addEventListener("click", function(){
-      let i=this.getAttribute("data-index");
-      let item=d[i];
-      sendWhatsApp(item["Model"], item["Price"], getBox(item));
-    });
-  });
+html+=`
+<div class="card">
+<div class="model">${model}</div>
+
+<div class="rowFlex">
+
+<div class="leftGroup">
+<div class="pricebox">${formatPrice(price)}</div>
+${box ? `<span class="box">${box}</span>` : ""}
+</div>
+
+<div class="whatsappMini" data-index="${index}">
+<img loading="lazy" src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+</div>
+
+</div>
+</div>
+`;
+
+});
+
+document.getElementById("data").innerHTML=html;
+
+document.querySelectorAll(".whatsappMini").forEach(btn=>{
+btn.onclick=function(){
+let i=this.getAttribute("data-index");
+let item=d[i];
+sendWhatsApp(item["Model"],item["Price"],getBox(item));
+}
+});
+
 }
 
-function sendWhatsApp(model, price, box){
+function sendWhatsApp(model,price,box){
 
-  let message =
+let message=
 `📱 MAHIRA TELECOM
 
 Model: ${model}
@@ -262,17 +284,22 @@ Box: ${box ? box : "N/A"}
 
 আমার Display লাগবে।`;
 
-  let url="https://wa.me/8801813424704?text="+encodeURIComponent(message);
+let url="https://wa.me/8801813424704?text="+encodeURIComponent(message);
 
-  window.location.href = url;
+window.location.href=url;
+
 }
 
 function search(){
-  let s=document.getElementById("search").value.toLowerCase();
-  let f=all.filter(x=>
-    (x["Model"]+"").toLowerCase().includes(s)
-  );
-  show(f);
+
+let s=document.getElementById("search").value.toLowerCase();
+
+let f=all.filter(x=>
+(x["Model"]+"").toLowerCase().includes(s)
+);
+
+show(f);
+
 }
 
 </script>

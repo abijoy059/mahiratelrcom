@@ -7,8 +7,10 @@
 
 <title>MAHIRA TELECOM</title>
 
+<!-- Speed Cache -->
 <meta http-equiv="Cache-Control" content="max-age=31536000">
 
+<!-- Fast Font -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -36,15 +38,22 @@ background:linear-gradient(135deg,#ff7a18,#ff3d54);
 #count{
 font-size:13px;
 margin-top:5px;
-opacity:0.9;
+opacity:0.85;
+letter-spacing:0.5px;
 }
 
-/* BRAND ROW */
+/* BRAND SCROLL */
 
 .brandRow{
-text-align:center;
-padding:12px;
+padding:10px;
+overflow-x:auto;
+white-space:nowrap;
 border-bottom:1px solid #222;
+text-align:center;
+}
+
+.brandRow::-webkit-scrollbar{
+display:none;
 }
 
 .brandBtn{
@@ -78,14 +87,13 @@ background:#181818;
 color:white;
 }
 
-/* CARD ULTRA CLEAN */
+/* CARD */
 
 .card{
 background:#181818;
 margin:12px;
 padding:16px;
 border-radius:14px;
-
 border:1px solid #252525;
 }
 
@@ -94,8 +102,6 @@ font-weight:600;
 font-size:16px;
 margin-bottom:8px;
 }
-
-/* FLEX */
 
 .rowFlex{
 display:flex;
@@ -109,8 +115,6 @@ gap:8px;
 align-items:center;
 }
 
-/* PRICE */
-
 .pricebox{
 background:#1f2a22;
 padding:7px 13px;
@@ -118,8 +122,6 @@ border-radius:10px;
 font-weight:600;
 font-size:14px;
 }
-
-/* BOX */
 
 .box{
 background:#1b2a4a;
@@ -137,8 +139,8 @@ font-weight:600;
 /* WHATSAPP */
 
 .whatsappMini{
-width:40px;
-height:40px;
+width:42px;
+height:42px;
 background:#25D366;
 border-radius:50%;
 display:flex;
@@ -148,7 +150,7 @@ cursor:pointer;
 }
 
 .whatsappMini img{
-width:20px;
+width:22px;
 }
 
 /* LOADING */
@@ -176,7 +178,7 @@ opacity:0.6;
 
 <div class="search">
 
-<input type="text" id="search" placeholder="Search model..." onkeyup="search()">
+<input type="text" id="search" placeholder="🔍 Search model..." onkeyup="search()">
 
 </div>
 
@@ -196,11 +198,9 @@ fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
 let html="";
 
 d.forEach(b=>{
-
 if(!b.Brand||!b.SheetID) return;
 
 html+=`<span class="brandBtn" onclick="loadBrand('${b.SheetID}',this)">${b.Brand}</span>`;
-
 });
 
 document.getElementById("brands").innerHTML=html;
@@ -219,7 +219,7 @@ document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
 
 btn.classList.add("active");
 
-document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
+document.getElementById("data").innerHTML='<div class="loading">Loading Models...</div>';
 
 document.getElementById("count").innerText="Loading...";
 
@@ -266,11 +266,9 @@ return t;
 function getBox(x){
 
 for(let key in x){
-
 if(key.toLowerCase().includes("box")){
 return x[key];
 }
-
 }
 
 return "";
@@ -319,7 +317,6 @@ ${box ? `<span class="box">${box}</span>` : ""}
 document.getElementById("data").innerHTML=html;
 
 document.querySelectorAll(".whatsappMini").forEach(btn=>{
-
 btn.onclick=function(){
 
 let i=this.getAttribute("data-index");
@@ -329,7 +326,6 @@ let item=d[i];
 sendWhatsApp(item["Model"],item["Price"],getBox(item));
 
 }
-
 });
 
 }
@@ -341,9 +337,7 @@ let message=
 `📱 MAHIRA TELECOM
 
 Model: ${model}
-
 Price: ${price ? price : "ASK"}
-
 Box: ${box ? box : "N/A"}
 
 আমার Display লাগবে।`;

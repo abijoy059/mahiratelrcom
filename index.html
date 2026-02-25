@@ -7,6 +7,10 @@
 
 <title>MAHIRA TELECOM</title>
 
+<link rel="icon" href="file_00000000726071fa92993d91c677762b_1_512x512.png">
+<link rel="apple-touch-icon" href="file_00000000726071fa92993d91c677762b_1_512x512.png">
+<meta name="theme-color" content="#ff3d54">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -17,6 +21,8 @@ font-family:'Poppins',sans-serif;
 background:#121212;
 color:white;
 }
+
+/* HEADER */
 
 .header{
 text-align:center;
@@ -220,7 +226,9 @@ let loadingID=0;
 /* LOAD BRANDS */
 
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
+
 .then(r=>r.json())
+
 .then(d=>{
 
 let html="";
@@ -239,7 +247,7 @@ loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
 
 });
 
-/* LOAD DATA (EXTREME LITE SPEED) */
+/* EXTREME LITE LOAD */
 
 function loadBrand(sheetID,btn){
 
@@ -282,39 +290,6 @@ document.getElementById("count").innerText="Total Models: "+all.length;
 
 }
 
-/* FORMAT PRICE */
-
-function formatPrice(p){
-
-if(!p) return "ASK";
-
-let t=p.toUpperCase();
-
-t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
-t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
-t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
-t=t.replace(/\n/g,"<br>");
-
-return t;
-
-}
-
-/* BOX AUTO DETECT */
-
-function getBox(x){
-
-for(let key in x){
-
-if(key.toLowerCase().includes("box")){
-return x[key];
-}
-
-}
-
-return "";
-
-}
-
 /* SHOW */
 
 function show(d){
@@ -325,7 +300,7 @@ d.forEach((x,index)=>{
 
 let model=x["Model"]||"";
 let price=x["Price"]||"";
-let box=getBox(x);
+let box=x["Box"]||"";
 
 html+=`
 
@@ -337,9 +312,9 @@ html+=`
 
 <div class="leftGroup">
 
-<div class="pricebox">${formatPrice(price)}</div>
+<div class="pricebox">${price}</div>
 
-${box ? `<span class="box">${box}</span>` : ""}
+${box?`<span class="box">${box}</span>`:""}
 
 </div>
 
@@ -357,8 +332,6 @@ ${box ? `<span class="box">${box}</span>` : ""}
 
 document.getElementById("data").innerHTML=html;
 
-/* CLICK SAFE */
-
 document.querySelectorAll(".whatsappMini").forEach(btn=>{
 
 btn.onclick=function(){
@@ -367,7 +340,7 @@ let i=this.getAttribute("data-index");
 
 let item=d[i];
 
-sendWhatsApp(item["Model"],item["Price"],getBox(item));
+sendWhatsApp(item["Model"],item["Price"],item["Box"]);
 
 }
 
@@ -382,14 +355,16 @@ function search(){
 let s=document.getElementById("search").value.toLowerCase();
 
 let f=all.filter(x=>
+
 (x["Model"]+"").toLowerCase().includes(s)
+
 );
 
 show(f);
 
 }
 
-/* VOICE SEARCH */
+/* VOICE */
 
 function startVoice(){
 
@@ -416,6 +391,14 @@ mic.classList.remove("active");
 };
 
 recognition.start();
+
+}
+
+function sendWhatsApp(m,p,b){
+
+let url="https://wa.me/8801813424704?text="+m+" "+p+" "+b;
+
+window.location=url;
 
 }
 

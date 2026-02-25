@@ -7,7 +7,6 @@
 
 <title>MAHIRA TELECOM</title>
 
-<!-- Speed Cache -->
 <meta http-equiv="Cache-Control" content="max-age=31536000">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -62,21 +61,35 @@ background:#2f6fff;
 color:white;
 }
 
-/* SEARCH (IMAGE STYLE) */
+/* SEARCH */
 
 .search{
 padding:15px;
+position:relative;
 }
 
 .search input{
 width:100%;
-padding:16px;
+padding:16px 50px 16px 16px;
 border-radius:25px;
 border:1px solid #2a2a2a;
 background:#161616;
 color:#ddd;
 font-size:15px;
 outline:none;
+}
+
+/* MIC BUTTON */
+
+.mic{
+
+position:absolute;
+right:25px;
+top:50%;
+transform:translateY(-50%);
+font-size:20px;
+cursor:pointer;
+
 }
 
 /* CARD */
@@ -169,7 +182,12 @@ opacity:0.6;
 
 <div class="search">
 
-<input type="text" id="search" placeholder="🔍 Search model..." onkeyup="search()">
+<input type="text"
+id="search"
+placeholder="🔍 Search model..."
+onkeyup="search()">
+
+<div class="mic" onclick="startVoice()">🎤</div>
 
 </div>
 
@@ -339,6 +357,8 @@ sendWhatsApp(item["Model"],item["Price"],getBox(item));
 
 }
 
+/* WHATSAPP */
+
 function sendWhatsApp(model,price,box){
 
 let message=
@@ -357,6 +377,8 @@ window.location.href=url;
 
 }
 
+/* SEARCH */
+
 function search(){
 
 let s=document.getElementById("search").value.toLowerCase();
@@ -366,6 +388,28 @@ let f=all.filter(x=>
 );
 
 show(f);
+
+}
+
+/* VOICE SEARCH */
+
+function startVoice(){
+
+let recognition = new webkitSpeechRecognition();
+
+recognition.lang="en-US";
+
+recognition.onresult=function(event){
+
+let text=event.results[0][0].transcript;
+
+document.getElementById("search").value=text;
+
+search();
+
+};
+
+recognition.start();
 
 }
 

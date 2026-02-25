@@ -9,10 +9,8 @@
 
 <!-- Speed Boost -->
 <meta http-equiv="Cache-Control" content="max-age=31536000">
-<meta http-equiv="Pragma" content="cache">
-<meta name="format-detection" content="telephone=no">
 
-<!-- Faster Google Font Load -->
+<!-- Fast Font -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -23,22 +21,27 @@
 body{
 margin:0;
 font-family:'Poppins',sans-serif;
-background:#121212;
+background:#0f0f0f;
 color:white;
 }
 
+/* HEADER */
+
 .header{
 text-align:center;
-padding:18px;
+padding:20px;
 font-weight:700;
 font-size:20px;
 background:linear-gradient(135deg,#ff7a18,#ff3d54);
+box-shadow:0 6px 20px rgba(0,0,0,0.5);
 }
 
 #count{
 font-size:14px;
 margin-top:5px;
 }
+
+/* BRAND BUTTONS */
 
 .brandRow{
 text-align:center;
@@ -48,18 +51,28 @@ padding:15px;
 .brandBtn{
 display:inline-block;
 margin:6px;
-padding:8px 16px;
-border-radius:20px;
-background:#2a2a2a;
-color:#ccc;
+padding:9px 18px;
+border-radius:25px;
+background:rgba(255,255,255,0.08);
+color:#ddd;
 cursor:pointer;
 font-size:14px;
+backdrop-filter:blur(6px);
+border:1px solid rgba(255,255,255,0.1);
+transition:0.15s;
+}
+
+.brandBtn:active{
+transform:scale(0.95);
 }
 
 .active{
-background:#2f6fff;
+background:linear-gradient(135deg,#2f6fff,#4d8dff);
 color:white;
+border:none;
 }
+
+/* SEARCH */
 
 .search{
 padding:15px;
@@ -67,18 +80,36 @@ padding:15px;
 
 .search input{
 width:100%;
-padding:12px;
-border-radius:12px;
+padding:14px;
+border-radius:16px;
 border:1px solid #333;
-background:#1e1e1e;
+background:rgba(255,255,255,0.05);
 color:white;
+outline:none;
 }
 
+.search input:focus{
+border:1px solid #2f6fff;
+box-shadow:0 0 12px rgba(47,111,255,0.6);
+}
+
+/* GLASS CARD */
+
 .card{
-background:#1e1e1e;
+background:rgba(255,255,255,0.04);
 margin:15px;
 padding:18px;
-border-radius:16px;
+border-radius:20px;
+
+border:1px solid rgba(255,255,255,0.08);
+
+box-shadow:0 6px 18px rgba(0,0,0,0.4);
+
+transition:0.15s;
+}
+
+.card:active{
+transform:scale(0.98);
 }
 
 .model{
@@ -86,6 +117,8 @@ font-weight:600;
 font-size:16px;
 margin-bottom:10px;
 }
+
+/* ROW */
 
 .rowFlex{
 display:flex;
@@ -99,6 +132,8 @@ gap:10px;
 align-items:center;
 }
 
+/* PRICE */
+
 .pricebox{
 background:#1f2a22;
 padding:8px 14px;
@@ -106,6 +141,8 @@ border-radius:12px;
 font-weight:600;
 font-size:14px;
 }
+
+/* BOX */
 
 .box{
 background:#1b2a4a;
@@ -116,29 +153,50 @@ color:#8ab4ff;
 font-weight:600;
 }
 
+/* TEXT COLORS */
+
 .oled{color:#00ff7f;}
 .copy{color:#4da6ff;}
 .out{color:#ff3b3b;}
 
+/* WHATSAPP BUTTON */
+
 .whatsappMini{
-width:42px;
-height:42px;
-background:#25D366;
+width:46px;
+height:46px;
+background:linear-gradient(135deg,#25D366,#1ebe5d);
+
 border-radius:50%;
+
 display:flex;
 align-items:center;
 justify-content:center;
+
 cursor:pointer;
+
+transition:0.15s;
+}
+
+.whatsappMini:active{
+transform:scale(0.9);
 }
 
 .whatsappMini img{
 width:22px;
 }
 
+/* LOADING */
+
 .loading{
 text-align:center;
 padding:30px;
 opacity:0.6;
+}
+
+/* SMOOTH SCROLL */
+
+html{
+scroll-behavior:smooth;
 }
 
 </style>
@@ -162,72 +220,109 @@ opacity:0.6;
 <script>
 
 let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
+
 let all=[];
 let loadingID=0;
 
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
+
 .then(r=>r.json())
+
 .then(d=>{
+
 let html="";
+
 d.forEach(b=>{
+
 if(!b.Brand||!b.SheetID) return;
+
 html+=`<span class="brandBtn" onclick="loadBrand('${b.SheetID}',this)">${b.Brand}</span>`;
+
 });
+
 document.getElementById("brands").innerHTML=html;
+
 loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
+
 });
 
 function loadBrand(sheetID,btn){
 
 loadingID++;
+
 let currentLoad=loadingID;
 
 document.querySelectorAll(".brandBtn").forEach(b=>b.classList.remove("active"));
+
 btn.classList.add("active");
 
 document.getElementById("data").innerHTML='<div class="loading">Loading...</div>';
+
 document.getElementById("count").innerText="Loading...";
 
 let ids=sheetID.split(",").map(x=>x.trim());
 
-Promise.all(ids.map(id =>
+Promise.all(ids.map(id=>
+
 fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
+
 .then(r=>r.json())
+
 )).then(results=>{
 
 if(currentLoad!==loadingID) return;
 
 let combined=[];
+
 results.forEach(d=>{
+
 combined=combined.concat(
+
 d.filter(x=>x["Model"] && x["Model"]!="Model")
+
 );
+
 });
 
 all=combined;
+
 show(all);
+
 document.getElementById("count").innerText="Total Models: "+all.length;
 
 });
+
 }
 
 function formatPrice(p){
+
 if(!p) return "ASK";
+
 let t=p.toUpperCase();
+
 t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
 t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
 t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
 t=t.replace(/\n/g,"<br>");
+
 return t;
+
 }
 
 function getBox(x){
+
 for(let key in x){
+
 if(key.toLowerCase().includes("box")){
+
 return x[key];
+
 }
+
 }
+
 return "";
+
 }
 
 function show(d){
@@ -241,22 +336,31 @@ let price=x["Price"]||"";
 let box=getBox(x);
 
 html+=`
+
 <div class="card">
+
 <div class="model">${model}</div>
 
 <div class="rowFlex">
 
 <div class="leftGroup">
+
 <div class="pricebox">${formatPrice(price)}</div>
+
 ${box ? `<span class="box">${box}</span>` : ""}
+
 </div>
 
 <div class="whatsappMini" data-index="${index}">
-<img loading="lazy" src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+
+<img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+
 </div>
 
 </div>
+
 </div>
+
 `;
 
 });
@@ -264,11 +368,17 @@ ${box ? `<span class="box">${box}</span>` : ""}
 document.getElementById("data").innerHTML=html;
 
 document.querySelectorAll(".whatsappMini").forEach(btn=>{
+
 btn.onclick=function(){
+
 let i=this.getAttribute("data-index");
+
 let item=d[i];
+
 sendWhatsApp(item["Model"],item["Price"],getBox(item));
+
 }
+
 });
 
 }
@@ -276,10 +386,13 @@ sendWhatsApp(item["Model"],item["Price"],getBox(item));
 function sendWhatsApp(model,price,box){
 
 let message=
+
 `📱 MAHIRA TELECOM
 
 Model: ${model}
+
 Price: ${price ? price : "ASK"}
+
 Box: ${box ? box : "N/A"}
 
 আমার Display লাগবে।`;
@@ -295,7 +408,9 @@ function search(){
 let s=document.getElementById("search").value.toLowerCase();
 
 let f=all.filter(x=>
+
 (x["Model"]+"").toLowerCase().includes(s)
+
 );
 
 show(f);

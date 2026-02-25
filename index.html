@@ -97,33 +97,30 @@ position:absolute;
 right:28px;
 top:50%;
 transform:translateY(-50%);
-font-size:20px;
 cursor:pointer;
 transition:0.2s;
 }
 
-/* Voice Glow */
+/* SVG Size */
 
-.mic.active{
-color:#ff3b3b;
+.mic svg{
+width:22px;
+height:22px;
+fill:#cccccc;
+}
+
+/* Glow */
+
+.mic.active svg{
+fill:#ff3b3b;
 animation:pulse 1s infinite;
 }
 
-/* Pulse Animation */
-
 @keyframes pulse{
 
-0%{
-transform:translateY(-50%) scale(1);
-}
-
-50%{
-transform:translateY(-50%) scale(1.2);
-}
-
-100%{
-transform:translateY(-50%) scale(1);
-}
+0%{transform:scale(1);}
+50%{transform:scale(1.2);}
+100%{transform:scale(1);}
 
 }
 
@@ -175,7 +172,7 @@ font-weight:600;
 .copy{color:#4da6ff;}
 .out{color:#ff3b3b;}
 
-/* WHATSAPP */
+/* WhatsApp */
 
 .whatsappMini{
 width:42px;
@@ -192,7 +189,7 @@ cursor:pointer;
 width:22px;
 }
 
-/* LOADING */
+/* Loading */
 
 .loading{
 text-align:center;
@@ -224,7 +221,15 @@ onkeyup="search()">
 
 <div class="searchIcon">🔎</div>
 
-<div class="mic" onclick="startVoice()" id="micBtn">🎤</div>
+<div class="mic" onclick="startVoice()" id="micBtn">
+
+<svg viewBox="0 0 24 24">
+
+<path d="M12 15a3 3 0 003-3V5a3 3 0 10-6 0v7a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 0014 0h-2zm-5 7a7 7 0 007-7h-2a5 5 0 01-10 0H5a7 7 0 007 7z"/>
+
+</svg>
+
+</div>
 
 </div>
 
@@ -276,11 +281,8 @@ document.getElementById("count").innerText="Loading...";
 let ids=sheetID.split(",").map(x=>x.trim());
 
 Promise.all(ids.map(id=>
-
 fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
-
 .then(r=>r.json())
-
 )).then(results=>{
 
 if(currentLoad!==loadingID) return;
@@ -288,11 +290,9 @@ if(currentLoad!==loadingID) return;
 let combined=[];
 
 results.forEach(d=>{
-
 combined=combined.concat(
 d.filter(x=>x["Model"] && x["Model"]!="Model")
 );
-
 });
 
 all=combined;
@@ -323,11 +323,9 @@ return t;
 function getBox(x){
 
 for(let key in x){
-
 if(key.toLowerCase().includes("box")){
 return x[key];
 }
-
 }
 
 return "";
@@ -420,7 +418,7 @@ show(f);
 
 }
 
-/* Bangla + English Voice */
+/* English Voice */
 
 function startVoice(){
 
@@ -430,7 +428,7 @@ mic.classList.add("active");
 
 let recognition = new webkitSpeechRecognition();
 
-recognition.lang="bn-BD";
+recognition.lang="en-US";
 
 recognition.onresult=function(event){
 

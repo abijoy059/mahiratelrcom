@@ -7,7 +7,7 @@
 
 <title>MAHIRA TELECOM</title>
 
-<!-- Speed Boost -->
+<!-- Speed Cache -->
 <meta http-equiv="Cache-Control" content="max-age=31536000">
 
 <!-- Fast Font -->
@@ -21,7 +21,7 @@
 body{
 margin:0;
 font-family:'Poppins',sans-serif;
-background:#0f0f0f;
+background:#121212;
 color:white;
 }
 
@@ -29,19 +29,20 @@ color:white;
 
 .header{
 text-align:center;
-padding:20px;
+padding:18px;
 font-weight:700;
 font-size:20px;
 background:linear-gradient(135deg,#ff7a18,#ff3d54);
-box-shadow:0 6px 20px rgba(0,0,0,0.5);
 }
+
+/* COUNT */
 
 #count{
 font-size:14px;
 margin-top:5px;
 }
 
-/* BRAND BUTTONS */
+/* BRAND */
 
 .brandRow{
 text-align:center;
@@ -51,25 +52,17 @@ padding:15px;
 .brandBtn{
 display:inline-block;
 margin:6px;
-padding:9px 18px;
-border-radius:25px;
-background:rgba(255,255,255,0.08);
-color:#ddd;
+padding:8px 16px;
+border-radius:20px;
+background:#2a2a2a;
+color:#ccc;
 cursor:pointer;
 font-size:14px;
-backdrop-filter:blur(6px);
-border:1px solid rgba(255,255,255,0.1);
-transition:0.15s;
-}
-
-.brandBtn:active{
-transform:scale(0.95);
 }
 
 .active{
-background:linear-gradient(135deg,#2f6fff,#4d8dff);
+background:#2f6fff;
 color:white;
-border:none;
 }
 
 /* SEARCH */
@@ -80,37 +73,25 @@ padding:15px;
 
 .search input{
 width:100%;
-padding:14px;
-border-radius:16px;
+padding:12px;
+border-radius:12px;
 border:1px solid #333;
-background:rgba(255,255,255,0.05);
+background:#1e1e1e;
 color:white;
-outline:none;
 }
 
-.search input:focus{
-border:1px solid #2f6fff;
-box-shadow:0 0 12px rgba(47,111,255,0.6);
-}
-
-/* GLASS CARD */
+/* CARD (LIGHT SHADOW ONLY) */
 
 .card{
-background:rgba(255,255,255,0.04);
+background:#1e1e1e;
 margin:15px;
 padding:18px;
-border-radius:20px;
+border-radius:16px;
 
-border:1px solid rgba(255,255,255,0.08);
-
-box-shadow:0 6px 18px rgba(0,0,0,0.4);
-
-transition:0.15s;
+box-shadow:0 2px 6px rgba(0,0,0,0.25);
 }
 
-.card:active{
-transform:scale(0.98);
-}
+/* MODEL */
 
 .model{
 font-weight:600;
@@ -118,7 +99,7 @@ font-size:16px;
 margin-bottom:10px;
 }
 
-/* ROW */
+/* FLEX */
 
 .rowFlex{
 display:flex;
@@ -153,32 +134,21 @@ color:#8ab4ff;
 font-weight:600;
 }
 
-/* TEXT COLORS */
-
 .oled{color:#00ff7f;}
 .copy{color:#4da6ff;}
 .out{color:#ff3b3b;}
 
-/* WHATSAPP BUTTON */
+/* WHATSAPP */
 
 .whatsappMini{
-width:46px;
-height:46px;
-background:linear-gradient(135deg,#25D366,#1ebe5d);
-
+width:42px;
+height:42px;
+background:#25D366;
 border-radius:50%;
-
 display:flex;
 align-items:center;
 justify-content:center;
-
 cursor:pointer;
-
-transition:0.15s;
-}
-
-.whatsappMini:active{
-transform:scale(0.9);
 }
 
 .whatsappMini img{
@@ -193,26 +163,25 @@ padding:30px;
 opacity:0.6;
 }
 
-/* SMOOTH SCROLL */
-
-html{
-scroll-behavior:smooth;
-}
-
 </style>
 </head>
 
 <body>
 
 <div class="header">
+
 📱 MAHIRA TELECOM
+
 <div id="count">Total Models: 0</div>
+
 </div>
 
 <div class="brandRow" id="brands"></div>
 
 <div class="search">
+
 <input type="text" id="search" placeholder="Search model..." onkeyup="search()">
+
 </div>
 
 <div id="data"></div>

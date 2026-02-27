@@ -7,9 +7,12 @@
 
 <title>MAHIRA TELECOM</title>
 
-<link rel="icon" href="file_00000000726071fa92993d91c677762b_1_512x512.png">
-<link rel="apple-touch-icon" href="file_00000000726071fa92993d91c677762b_1_512x512.png">
-<meta name="theme-color" content="#ff3d54">
+<!-- Speed Boost -->
+<meta http-equiv="Cache-Control" content="max-age=31536000">
+
+<!-- Fast Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -18,7 +21,7 @@
 body{
 margin:0;
 font-family:'Poppins',sans-serif;
-background:#121212;
+background:#0f0f0f;
 color:white;
 }
 
@@ -26,10 +29,11 @@ color:white;
 
 .header{
 text-align:center;
-padding:18px;
+padding:20px;
 font-weight:700;
 font-size:20px;
 background:linear-gradient(135deg,#ff7a18,#ff3d54);
+box-shadow:0 6px 20px rgba(0,0,0,0.5);
 }
 
 #count{
@@ -37,7 +41,7 @@ font-size:14px;
 margin-top:5px;
 }
 
-/* BRAND */
+/* BRAND BUTTONS */
 
 .brandRow{
 text-align:center;
@@ -47,80 +51,65 @@ padding:15px;
 .brandBtn{
 display:inline-block;
 margin:6px;
-padding:8px 16px;
-border-radius:20px;
-background:#2a2a2a;
-color:#ccc;
+padding:9px 18px;
+border-radius:25px;
+background:rgba(255,255,255,0.08);
+color:#ddd;
 cursor:pointer;
 font-size:14px;
+backdrop-filter:blur(6px);
+border:1px solid rgba(255,255,255,0.1);
+transition:0.15s;
+}
+
+.brandBtn:active{
+transform:scale(0.95);
 }
 
 .active{
-background:#2f6fff;
+background:linear-gradient(135deg,#2f6fff,#4d8dff);
 color:white;
+border:none;
 }
 
 /* SEARCH */
 
 .search{
 padding:15px;
-position:relative;
 }
 
 .search input{
 width:100%;
-padding:16px 60px 16px 45px;
-border-radius:25px;
-border:1px solid #2a2a2a;
-background:#161616;
-color:#ddd;
-font-size:15px;
+padding:14px;
+border-radius:16px;
+border:1px solid #333;
+background:rgba(255,255,255,0.05);
+color:white;
 outline:none;
 }
 
-.searchIcon{
-position:absolute;
-left:25px;
-top:50%;
-transform:translateY(-50%);
-font-size:18px;
-opacity:0.7;
+.search input:focus{
+border:1px solid #2f6fff;
+box-shadow:0 0 12px rgba(47,111,255,0.6);
 }
 
-/* MIC */
-
-.mic{
-position:absolute;
-right:25px;
-top:50%;
-transform:translateY(-50%);
-cursor:pointer;
-}
-
-.mic svg{
-width:22px;
-height:22px;
-fill:#cccccc;
-}
-
-.mic.active svg{
-fill:#ff3b3b;
-animation:pulse 1s infinite;
-}
-
-@keyframes pulse{
-0%{transform:scale(1);}
-50%{transform:scale(1.2);}
-100%{transform:scale(1);}
-}
-
-/* CARD */
+/* GLASS CARD */
 
 .card{
-background:#1e1e1e;
+background:rgba(255,255,255,0.04);
 margin:15px;
 padding:18px;
-border-radius:16px;
+border-radius:20px;
+
+border:1px solid rgba(255,255,255,0.08);
+
+box-shadow:0 6px 18px rgba(0,0,0,0.4);
+
+transition:0.15s;
+}
+
+.card:active{
+transform:scale(0.98);
 }
 
 .model{
@@ -128,6 +117,8 @@ font-weight:600;
 font-size:16px;
 margin-bottom:10px;
 }
+
+/* ROW */
 
 .rowFlex{
 display:flex;
@@ -141,6 +132,8 @@ gap:10px;
 align-items:center;
 }
 
+/* PRICE */
+
 .pricebox{
 background:#1f2a22;
 padding:8px 14px;
@@ -148,6 +141,8 @@ border-radius:12px;
 font-weight:600;
 font-size:14px;
 }
+
+/* BOX */
 
 .box{
 background:#1b2a4a;
@@ -158,29 +153,50 @@ color:#8ab4ff;
 font-weight:600;
 }
 
+/* TEXT COLORS */
+
 .oled{color:#00ff7f;}
 .copy{color:#4da6ff;}
 .out{color:#ff3b3b;}
 
+/* WHATSAPP BUTTON */
+
 .whatsappMini{
-width:42px;
-height:42px;
-background:#25D366;
+width:46px;
+height:46px;
+background:linear-gradient(135deg,#25D366,#1ebe5d);
+
 border-radius:50%;
+
 display:flex;
 align-items:center;
 justify-content:center;
+
 cursor:pointer;
+
+transition:0.15s;
+}
+
+.whatsappMini:active{
+transform:scale(0.9);
 }
 
 .whatsappMini img{
 width:22px;
 }
 
+/* LOADING */
+
 .loading{
 text-align:center;
 padding:30px;
 opacity:0.6;
+}
+
+/* SMOOTH SCROLL */
+
+html{
+scroll-behavior:smooth;
 }
 
 </style>
@@ -196,22 +212,7 @@ opacity:0.6;
 <div class="brandRow" id="brands"></div>
 
 <div class="search">
-
-<input type="text"
-id="search"
-placeholder="Search model..."
-onkeyup="search()">
-
-<div class="searchIcon">🔎</div>
-
-<div class="mic" onclick="startVoice()" id="micBtn">
-
-<svg viewBox="0 0 24 24">
-<path d="M12 15a3 3 0 003-3V5a3 3 0 10-6 0v7a3 3 0 003 3zM19 11a7 7 0 01-14 0h2a5 5 0 0010 0h2z"/>
-</svg>
-
-</div>
-
+<input type="text" id="search" placeholder="Search model..." onkeyup="search()">
 </div>
 
 <div id="data"></div>
@@ -222,8 +223,6 @@ let masterSheet="1sj8M7tQWFXXuk0IdVu7myTrjCTp0kOcqreBk9PUlKKQ";
 
 let all=[];
 let loadingID=0;
-
-/* LOAD BRANDS */
 
 fetch("https://opensheet.elk.sh/"+masterSheet+"/Sheet1")
 
@@ -247,8 +246,6 @@ loadBrand(d[0].SheetID,document.querySelector(".brandBtn"));
 
 });
 
-/* EXTREME LITE LOAD */
-
 function loadBrand(sheetID,btn){
 
 loadingID++;
@@ -265,9 +262,12 @@ document.getElementById("count").innerText="Loading...";
 
 let ids=sheetID.split(",").map(x=>x.trim());
 
-Promise.all(ids.map(id =>
+Promise.all(ids.map(id=>
+
 fetch("https://opensheet.elk.sh/"+id+"/Sheet1")
+
 .then(r=>r.json())
+
 )).then(results=>{
 
 if(currentLoad!==loadingID) return;
@@ -275,9 +275,13 @@ if(currentLoad!==loadingID) return;
 let combined=[];
 
 results.forEach(d=>{
+
 combined=combined.concat(
+
 d.filter(x=>x["Model"] && x["Model"]!="Model")
+
 );
+
 });
 
 all=combined;
@@ -290,7 +294,36 @@ document.getElementById("count").innerText="Total Models: "+all.length;
 
 }
 
-/* SHOW */
+function formatPrice(p){
+
+if(!p) return "ASK";
+
+let t=p.toUpperCase();
+
+t=t.replace(/OLED/g,'<span class="oled">OLED</span>');
+t=t.replace(/COPY/g,'<span class="copy">COPY</span>');
+t=t.replace(/STOCK OUT/g,'<span class="out">STOCK OUT</span>');
+t=t.replace(/\n/g,"<br>");
+
+return t;
+
+}
+
+function getBox(x){
+
+for(let key in x){
+
+if(key.toLowerCase().includes("box")){
+
+return x[key];
+
+}
+
+}
+
+return "";
+
+}
 
 function show(d){
 
@@ -300,7 +333,7 @@ d.forEach((x,index)=>{
 
 let model=x["Model"]||"";
 let price=x["Price"]||"";
-let box=x["Box"]||"";
+let box=getBox(x);
 
 html+=`
 
@@ -312,14 +345,16 @@ html+=`
 
 <div class="leftGroup">
 
-<div class="pricebox">${price}</div>
+<div class="pricebox">${formatPrice(price)}</div>
 
-${box?`<span class="box">${box}</span>`:""}
+${box ? `<span class="box">${box}</span>` : ""}
 
 </div>
 
 <div class="whatsappMini" data-index="${index}">
+
 <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+
 </div>
 
 </div>
@@ -340,7 +375,7 @@ let i=this.getAttribute("data-index");
 
 let item=d[i];
 
-sendWhatsApp(item["Model"],item["Price"],item["Box"]);
+sendWhatsApp(item["Model"],item["Price"],getBox(item));
 
 }
 
@@ -348,7 +383,25 @@ sendWhatsApp(item["Model"],item["Price"],item["Box"]);
 
 }
 
-/* SEARCH */
+function sendWhatsApp(model,price,box){
+
+let message=
+
+`📱 MAHIRA TELECOM
+
+Model: ${model}
+
+Price: ${price ? price : "ASK"}
+
+Box: ${box ? box : "N/A"}
+
+আমার Display লাগবে।`;
+
+let url="https://wa.me/8801813424704?text="+encodeURIComponent(message);
+
+window.location.href=url;
+
+}
 
 function search(){
 
@@ -361,44 +414,6 @@ let f=all.filter(x=>
 );
 
 show(f);
-
-}
-
-/* VOICE */
-
-function startVoice(){
-
-let mic=document.getElementById("micBtn");
-
-mic.classList.add("active");
-
-let recognition=new webkitSpeechRecognition();
-
-recognition.lang="en-US";
-
-recognition.onresult=function(e){
-
-document.getElementById("search").value=e.results[0][0].transcript;
-
-search();
-
-};
-
-recognition.onend=function(){
-
-mic.classList.remove("active");
-
-};
-
-recognition.start();
-
-}
-
-function sendWhatsApp(m,p,b){
-
-let url="https://wa.me/8801813424704?text="+m+" "+p+" "+b;
-
-window.location=url;
 
 }
 
